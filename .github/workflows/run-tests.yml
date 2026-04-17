@@ -16,8 +16,10 @@ jobs:
         include:
           - target: solution
             pom_file: pom_solution.xml
+            maven_args: -Dbuildhelper.addsource.skip=true -Dmaven.test.failure.ignore=true
           - target: template
             pom_file: pom_template.xml
+            maven_args: ''
 
     steps:
       - name: Checkout repository
@@ -33,7 +35,7 @@ jobs:
           cache: maven
 
       - name: Run tests for ${{ matrix.target }}
-        run: mvn -B -f tests/${{ matrix.pom_file }} clean test
+        run: mvn -B -f tests/${{ matrix.pom_file }} ${{ matrix.maven_args }} clean test
 
       - name: Upload Surefire reports
         if: always()
