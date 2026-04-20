@@ -2,12 +2,43 @@
 
 import glob
 import os
+import re
 import sys
 import xml.etree.ElementTree as ET
 
 
 START_MARKER = "<!-- TEST_OVERVIEW_START -->"
 END_MARKER = "<!-- TEST_OVERVIEW_END -->"
+
+
+STRUCTURAL_NAME_BY_INDEX = {
+    1: "test.TestManager.structAttributes[Main]",
+    2: "test.TestManager.structAttributes[Smiley]",
+    3: "test.TestManager.structClass[Main]",
+    4: "test.TestManager.structClass[Smiley]",
+    5: "test.TestManager.structConstructors[Main]",
+    6: "test.TestManager.structConstructors[Smiley]",
+    7: "test.TestManager.structMethods[Main]",
+    8: "test.TestManager.structMethods[Smiley]",
+}
+
+
+def normalize_solution_structural_names(case_results):
+    priority = {"❌": 3, "⏭️": 2, "✅": 1}
+    normalized = {}
+
+    for case_id, status in case_results.items():
+        mapped_case_id = case_id
+        match = re.match(r"^test\.TestManager\.strukturTests\(String\)\[(\d+)\]$", case_id)
+        if match:
+            index = int(match.group(1))
+            mapped_case_id = STRUCTURAL_NAME_BY_INDEX.get(index, case_id)
+
+        prev = normalized.get(mapped_case_id)
+        if prev is None or priority[status] > priority[prev]:
+            normalized[mapped_case_id] = status
+
+    return normalized
 
 
 def testcase_id(testcase):
@@ -89,6 +120,8 @@ def parse_report_dir(report_dir):
 def build_table(solution_results, template_results):
     solution_cases, solution_class = split_results_by_scope(solution_results)
     template_cases, template_class = split_results_by_scope(template_results)
+
+    solution_cases = normalize_solution_structural_names(solution_cases)
 
     base_cases = sorted(set(solution_cases.keys()) | set(template_cases.keys()))
     solution_cases = propagate_class_level_to_cases(solution_cases, solution_class, base_cases)

@@ -13,8 +13,6 @@ This exercise focuses on constructing an animated smiley from multiple geometric
 
 Detailled exercise instruction can be found in the readme file of the template repository.
 
-
-
 <!-- TEST_OVERVIEW_START -->
 ## Test Case Overview
 
@@ -24,22 +22,14 @@ Legend: ✅ passed, ❌ failed/error, ⏭️ skipped, — not present.
 
 | Test Case | Solution | Template |
 | --- | --- | --- |
-| test.TestManager.structAttributes[Main] | — | ✅ |
-| test.TestManager.structAttributes[Smiley] | — | ❌ |
-| test.TestManager.structClass[Main] | — | ✅ |
-| test.TestManager.structClass[Smiley] | — | ✅ |
-| test.TestManager.structConstructors[Main] | — | ✅ |
-| test.TestManager.structConstructors[Smiley] | — | ✅ |
-| test.TestManager.structMethods[Main] | — | ✅ |
-| test.TestManager.structMethods[Smiley] | — | ✅ |
-| test.TestManager.strukturTests(String)[1] | ✅ | — |
-| test.TestManager.strukturTests(String)[2] | ✅ | — |
-| test.TestManager.strukturTests(String)[3] | ✅ | — |
-| test.TestManager.strukturTests(String)[4] | ✅ | — |
-| test.TestManager.strukturTests(String)[5] | ✅ | — |
-| test.TestManager.strukturTests(String)[6] | ✅ | — |
-| test.TestManager.strukturTests(String)[7] | ✅ | — |
-| test.TestManager.strukturTests(String)[8] | ✅ | — |
+| test.TestManager.structAttributes[Main] | ✅ | ✅ |
+| test.TestManager.structAttributes[Smiley] | ✅ | ❌ |
+| test.TestManager.structClass[Main] | ✅ | ✅ |
+| test.TestManager.structClass[Smiley] | ✅ | ✅ |
+| test.TestManager.structConstructors[Main] | ✅ | ✅ |
+| test.TestManager.structConstructors[Smiley] | ✅ | ✅ |
+| test.TestManager.structMethods[Main] | ✅ | ✅ |
+| test.TestManager.structMethods[Smiley] | ✅ | ✅ |
 | test.TestManager.testBewegen | ❌ | ❌ |
 | test.TestManager.testRandErreicht | ❌ | ❌ |
 | test.TestManager.testRumfliegen | ❌ | ❌ |
