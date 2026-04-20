@@ -1,7 +1,19 @@
 # Smiley
 
-![Solution Tests](https://github.com/Blockly2Java/Smiley/actions/workflows/test-solution.yml/badge.svg?branch=main)
-![Template Tests](https://github.com/Blockly2Java/Smiley/actions/workflows/test-template.yml/badge.svg?branch=main)
+<!-- START Adjust URL -->
+![Solution passing all tests](https://img.shields.io/github/actions/workflow/status/Blockly2Java/Smiley/test-solution.yml?branch=main&label=Solution%20passing%20all%20tests)
+![Template compiling successfully](https://img.shields.io/github/actions/workflow/status/Blockly2Java/Smiley/test-template.yml?branch=main&label=Template%20compiling%20successfully)
+<!-- END Adjust URL -->
+
+## Abstract
+
+<!-- START Adjust for exercise -->
+This exercise focuses on constructing an animated smiley from multiple geometric primitives and modeling it as a composed object. It practices core object-oriented concepts including constructors, attribute design, method decomposition, and the use of reference attributes to manage and coordinate several shape instances within one class. The implementation also introduces basic motion behavior with boundary detection and directional inversion in a bounded world.
+<!-- END Adjust for exercise -->
+
+Detailled exercise instruction can be found in the readme file of the template repository.
+
+
 
 <!-- TEST_OVERVIEW_START -->
 ## Test Case Overview
