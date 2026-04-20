@@ -18,26 +18,26 @@ Detailed exercise instructions can be found in the README file of the template r
 
 Auto-updated by CI from latest test runs.
 <!-- markdownlint-disable-next-line MD033 -->
-> <sub>Last Updated: 20. Apr 2026 12:58:22 [CEST]</sub>
+> <sub>Last Updated: 20. Apr 2026 13:02:21 [CEST]</sub>
 <!-- markdownlint-disable-next-line MD033 -->
-> <sub>Commit: 87b6e1b9ab8e405f936216210ac603dd27cc8b1c</sub>
+> <sub>Commit: b5f3067cf6d876703e56de49a3623eabac0e8a05</sub>
 
 Legend: ✅ passed, ❌ failed/error, ⏭️ skipped, — not present.
 
 | Test Case | Solution | Template |
 | --- | --- | --- |
 | test.TestManager.structAttributes[Main] | ✅ | ✅ |
-| test.TestManager.structAttributes[Empty] | ✅ | ❌ |
+| test.TestManager.structAttributes[Smiley] | ✅ | ❌ |
 | test.TestManager.structClass[Main] | ✅ | ✅ |
-| test.TestManager.structClass[Empty] | ✅ | ✅ |
+| test.TestManager.structClass[Smiley] | ✅ | ✅ |
 | test.TestManager.structConstructors[Main] | ✅ | ✅ |
-| test.TestManager.structConstructors[Empty] | ✅ | ✅ |
+| test.TestManager.structConstructors[Smiley] | ✅ | ✅ |
 | test.TestManager.structMethods[Main] | ✅ | ✅ |
-| test.TestManager.structMethods[Empty] | ✅ | ✅ |
+| test.TestManager.structMethods[Smiley] | ✅ | ✅ |
 | test.TestManager.testBewegen | ❌ | ❌ |
 | test.TestManager.testRandErreicht | ❌ | ❌ |
 | test.TestManager.testRumfliegen | ❌ | ❌ |
-| test.TestManager.testEmptyCtr_Layout | ✅ | ❌ |
-| test.TestManager.testEmptyCtr_Objects | ✅ | ❌ |
-| test.TestManager.testEmptyCtr_Speed | ✅ | ❌ |
+| test.TestManager.testSmileyCtr_Layout | ✅ | ❌ |
+| test.TestManager.testSmileyCtr_Objects | ✅ | ❌ |
+| test.TestManager.testSmileyCtr_Speed | ✅ | ❌ |
 <!-- TEST_OVERVIEW_END -->
