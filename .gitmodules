@@ -1,0 +1,12 @@
+[submodule "aux"]
+	path = aux
+	url = git@github.com:Blockly2Java/aux.git
+[submodule "solution"]
+	path = solution
+	url = git@github.com:Blockly2Java/Gassi_solution.git
+[submodule "template"]
+	path = template
+	url = git@github.com:Blockly2Java/Gassi_template.git
+[submodule "tests"]
+	path = tests
+	url = git@github.com:Blockly2Java/Gassi_tests.git
