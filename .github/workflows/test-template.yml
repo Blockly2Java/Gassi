@@ -26,16 +26,8 @@ jobs:
 
       - name: Initialize required submodules
         run: |
-          git submodule sync -- solution template tests
-          git -c protocol.version=2 submodule update --init --force --depth=1 solution template tests
-
-      - name: Fetch aux sources
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          if [ ! -d aux/.git ]; then
-            git clone --depth 1 "https://x-access-token:${GH_TOKEN}@github.com/Blockly2Java/Smiley_aux.git" aux
-          fi
+          git submodule sync -- aux solution template tests
+          git -c protocol.version=2 submodule update --init --force --depth=1 aux solution template tests
 
       - name: Stage aux classes for template build
         run: |
