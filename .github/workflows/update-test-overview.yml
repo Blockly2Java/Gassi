@@ -29,11 +29,6 @@ jobs:
           git submodule sync -- aux solution template tests
           git -c protocol.version=2 submodule update --init --force --depth=1 aux solution template tests
 
-      - name: Stage aux classes for template build
-        run: |
-          mkdir -p template/src
-          find aux -maxdepth 1 -name '*.java' -exec cp -f {} template/src/ \;
-
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
@@ -43,7 +38,7 @@ jobs:
 
       - name: Run solution tests for overview
         continue-on-error: true
-        run: mvn -B -f tests/pom_solution.xml -Dbuildhelper.addsource.skip=true clean test
+        run: mvn -B -f tests/pom_solution.xml clean test
 
       - name: Save solution reports
         if: always()

@@ -37,7 +37,7 @@ jobs:
           cache: maven
 
       - name: Run solution tests
-        run: mvn -B -f tests/pom_solution.xml -Dbuildhelper.addsource.skip=true clean test
+        run: mvn -B -f tests/pom_solution.xml clean test
 
       - name: Upload Surefire reports
         if: always()
