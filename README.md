@@ -18,13 +18,17 @@ Detailed exercise instructions can be found in the README file of the template r
 
 Auto-updated by CI from latest test runs.
 <!-- markdownlint-disable-next-line MD033 -->
-> <sub>Last Updated: 23. Apr 2026 23:24:46 [CEST]</sub>
+> <sub>Last Updated: 23. Apr 2026 23:33:19 [CEST]</sub>
 <!-- markdownlint-disable-next-line MD033 -->
-> <sub>Commit: 8a7979e56a388041594c4cb83f2834ad69b72f90</sub>
+> <sub>Commit: 2f98533f82ed6105acc20a11c5c8255c6423427d</sub>
 
 Legend: ✅ passed, ❌ failed/error, ⏭️ skipped, — not present.
 
 | Test Case | Solution | Template |
 | --- | --- | --- |
-| (no test results found) | — | — |
+| test.TestManager.strukturTests() structAttributes[Main] | — | ✅ |
+| test.TestManager.strukturTests() structClass[Main] | — | ✅ |
+| test.TestManager.strukturTests() structConstructors[Main] | — | ✅ |
+| test.TestManager.strukturTests() structMethods[Main] | — | ✅ |
+| test.TestManager.testMain | — | ✅ |
 <!-- TEST_OVERVIEW_END -->
