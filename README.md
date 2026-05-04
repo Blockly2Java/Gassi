@@ -18,25 +18,13 @@ Detailed exercise instructions can be found in the README file of the template r
 
 Auto-updated by CI from latest test runs.
 <!-- markdownlint-disable-next-line MD033 -->
-> <sub>Last Updated: 24. Apr 2026 01:10:19 [CEST]</sub>
+> <sub>Last Updated: 5. May 2026 00:46:27 [CEST]</sub>
 <!-- markdownlint-disable-next-line MD033 -->
-> <sub>Commit: 91c861a6c1542abd703d2657b983455e9f27a405</sub>
+> <sub>Commit: caa1a66e674dba38d920e26113968836b0987b2a</sub>
 
 Legend: ✅ passed, ❌ failed/error, ⏭️ skipped, — not present.
 
 | Test Case | Solution | Template |
 | --- | --- | --- |
-| test.TestManager.strukturTests() structAttributes[Hund] | ✅ | ✅ |
-| test.TestManager.strukturTests() structAttributes[Main] | ✅ | ✅ |
-| test.TestManager.strukturTests() structAttributes[Mensch] | ✅ | ✅ |
-| test.TestManager.strukturTests() structClass[Hund] | ✅ | ✅ |
-| test.TestManager.strukturTests() structClass[Main] | ✅ | ✅ |
-| test.TestManager.strukturTests() structClass[Mensch] | ✅ | ✅ |
-| test.TestManager.strukturTests() structConstructors[Hund] | ✅ | ✅ |
-| test.TestManager.strukturTests() structConstructors[Main] | ✅ | ✅ |
-| test.TestManager.strukturTests() structConstructors[Mensch] | ✅ | ✅ |
-| test.TestManager.strukturTests() structMethods[Hund] | ✅ | ✅ |
-| test.TestManager.strukturTests() structMethods[Main] | ✅ | ✅ |
-| test.TestManager.strukturTests() structMethods[Mensch] | ✅ | ❌ |
-| test.TestManager.testMain | ✅ | ✅ |
+| (no test results found) | — | — |
 <!-- TEST_OVERVIEW_END -->
