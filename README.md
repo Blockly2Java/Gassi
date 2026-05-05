@@ -8,7 +8,7 @@
 ## Abstract
 
 <!-- START Adjust for exercise -->
-TODO: Insert a short abstract about the exercise to help teachers choose. Explicitly mention the applied concepts and the diffcult level for students.
+This exercise focuses on modeling the interaction between two objects (human and dog) and implementing coordinated movement behavior. Students practice object-oriented concepts including constructor design, reference attributes to manage inter-object relationships, getter methods for state access, and motion logic with boundary awareness in a bounded world. The implementation also covers random movement generation and method decomposition for behavior coordination. The difficulty level is intermediate, building on foundational shape and motion concepts from previous exercises.
 <!-- END Adjust for exercise -->
 
 Detailed exercise instructions can be found in the README file of the template repository.
