@@ -1,6 +1,3 @@
-[submodule "aux"]
-	path = aux
-	url = git@github.com:Blockly2Java/aux.git
 [submodule "solution"]
 	path = solution
 	url = git@github.com:Blockly2Java/Gassi_solution.git
