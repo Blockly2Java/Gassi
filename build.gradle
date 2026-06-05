@@ -20,6 +20,8 @@ dependencies {
     testRuntimeOnly    'org.junit.platform:junit-platform-launcher:1.10.2'
     testImplementation 'org.assertj:assertj-core:3.24.2'
     testImplementation 'io.github.valentinherrmann:levenshtein-testing-framework:+'
+    // B2J Graphics Library — provides Group, Circle, Line, etc. used by solution/template source
+    testImplementation 'de.blockly2java:graphics:[0.1.0,)'
 }
 
 // Shared test configuration
