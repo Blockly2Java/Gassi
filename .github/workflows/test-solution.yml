@@ -1,43 +1,45 @@
 name: Solution Tests
-
 on:
   push:
-
 permissions:
   contents: read
-
 jobs:
   test-solution:
     name: Test solution
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
+      - name: Derive sub-repo names
+        id: repos
+        run: |
+          EXERCISE="${GITHUB_REPOSITORY##*/}"   # strips 'Org/' prefix
+          echo "exercise=${EXERCISE}" >> $GITHUB_OUTPUT
+          echo "tests=${GITHUB_REPOSITORY_OWNER}/${EXERCISE}_tests" >> $GITHUB_OUTPUT
+          echo "solution=${GITHUB_REPOSITORY_OWNER}/${EXERCISE}_solution" >> $GITHUB_OUTPUT
+
+      - name: Checkout tests
         uses: actions/checkout@v4
         with:
-          submodules: false
+          repository: ${{ steps.repos.outputs.tests }}
+          token: ${{ github.token }}
+          path: tests
 
-      - name: Rewrite submodule URLs to HTTPS
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          git config --global --add url."https://x-access-token:${GH_TOKEN}@github.com/".insteadOf git@github.com:
-          git config --global --add url."https://x-access-token:${GH_TOKEN}@github.com/".insteadOf ssh://git@github.com/
+      - name: Checkout solution
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ steps.repos.outputs.solution }}
+          token: ${{ github.token }}
+          path: solution
 
-      - name: Initialize required submodules
-        run: |
-          git submodule sync -- solution tests
-          git -c protocol.version=2 submodule update --init --force --depth=1 solution tests
-
-      - name: Set up JDK 17
+      - name: Set up JDK 25
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '17'
+          java-version: '25'
           cache: maven
+          cache-dependency-path: tests/pom.xml
 
       - name: Run solution tests
-        run: cd tests && mvn -B -f clean test -Psolution
+        run: cd tests && ./mvnw -B clean test -Psolution
 
       - name: Upload Surefire reports
         if: always()
