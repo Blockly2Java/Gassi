@@ -59,8 +59,8 @@ jobs:
         if: always()
         run: |
           mkdir -p .ci-reports/solution
-          if [ -d build/reports/tests/testSolution ]; then
-            cp -r build/reports/tests/testSolution/. .ci-reports/solution/
+          if [ -d build/test-results/testSolution ]; then
+            cp -r build/test-results/testSolution/. .ci-reports/solution/
           fi
 
       - name: Run template tests for overview
@@ -71,8 +71,8 @@ jobs:
         if: always()
         run: |
           mkdir -p .ci-reports/template
-          if [ -d build/reports/tests/testTemplate ]; then
-            cp -r build/reports/tests/testTemplate/. .ci-reports/template/
+          if [ -d build/test-results/testTemplate ]; then
+            cp -r build/test-results/testTemplate/. .ci-reports/template/
           fi
 
       - name: Update README overview section
