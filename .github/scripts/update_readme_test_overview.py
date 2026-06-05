@@ -4,8 +4,6 @@ import glob
 import os
 import re
 import sys
-from datetime import datetime
-from zoneinfo import ZoneInfo
 import xml.etree.ElementTree as ET
 
 
@@ -119,19 +117,6 @@ def parse_report_dir(report_dir):
     return results
 
 
-def overview_timestamp_berlin():
-    tz = ZoneInfo("Europe/Berlin")
-    dt = datetime.now(tz)
-    month_abbrev = [
-        "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
-    ][dt.month - 1]
-    return f"Last Updated: {dt.day}. {month_abbrev} {dt.year} {dt:%H:%M:%S} [{dt:%Z}]"
-
-
-def overview_commit_hash():
-    return os.getenv("TEST_OVERVIEW_COMMIT") or os.getenv("GITHUB_SHA") or "unknown"
-
 
 def build_table(solution_results, template_results):
     solution_cases, solution_class = split_results_by_scope(solution_results)
@@ -159,10 +144,6 @@ def build_table(solution_results, template_results):
         "## Test Case Overview",
         "",
         "Auto-updated by CI from latest test runs.",
-        "<!-- markdownlint-disable-next-line MD033 -->",
-        f"> <sub>{overview_timestamp_berlin()}</sub>",
-        "<!-- markdownlint-disable-next-line MD033 -->",
-        f"> <sub>Commit: {overview_commit_hash()}</sub>",
         "",
         "Legend: ✅ passed, ❌ failed/error, ⏭️ skipped, — not present.",
         "",
