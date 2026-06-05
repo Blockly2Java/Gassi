@@ -22,5 +22,10 @@ Legend: ✅ passed, ❌ failed/error, ⏭️ skipped, — not present.
 
 | Test Case | Solution | Template |
 | --- | --- | --- |
-| (no test results found) | — | — |
+| b2j.test.TestManager.structStructural[all] | ❌ | ❌ |
+| b2j.test.TestManager.testBeiFuss() | ❌ | ❌ |
+| b2j.test.TestManager.testGassiGehen() | ❌ | ❌ |
+| b2j.test.TestManager.testHundRufen() | ❌ | ❌ |
+| b2j.test.TestManager.testMenschGetX() | ❌ | ❌ |
+| b2j.test.TestManager.testMenschGetY() | ❌ | ❌ |
 <!-- TEST_OVERVIEW_END -->
