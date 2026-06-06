@@ -72,34 +72,34 @@ jobs:
         id: overview
         run: |
           # Function to parse TEST-*.xml files and produce "classname|status" lines
+          # Uses sed+grep for portability (works with mawk, not just gawk)
           parse_reports() {
             local report_dir="$1"
             for xml in "$report_dir"/TEST-*.xml; do
               [ -f "$xml" ] || continue
-              # Each testcase line: classname="..." name="..."
-              # Check for failure/error/skipped children
-              awk '
-                /<testcase / {
-                  classname = ""; name = ""
-                  match($0, /classname="([^"]*)"/, c)
-                  match($0, /name="([^"]*)"/, n)
-                  if (c[1] != "") classname = c[1]
-                  if (n[1] != "") name = n[1]
-                  id = (classname != "" ? classname "." : "") name
-                  status = "✅"
-                  has_failure = 0
-                  has_error = 0
-                  has_skipped = 0
-                }
-                /<failure / || /<error / { has_failure = 1 }
-                /<skipped / { has_skipped = 1 }
-                /<\/testcase>/ {
-                  if (has_failure || has_error) status = "❌"
-                  else if (has_skipped) status = "⏭️"
-                  else status = "✅"
-                  print id "|" status
-                }
-              ' "$xml"
+              # Flatten XML to single line per testcase, then extract info
+              # Gradle JUnit reports have multi-line testcase elements
+              tr '\n' ' ' < "$xml" | \
+                grep -oP '<testcase[^>]*>(.*?)</testcase>' | \
+                while IFS= read -r testcase; do
+                  # Extract classname and name attributes
+                  classname=$(echo "$testcase" | sed -n 's/.*classname="\([^"]*\)".*/\1/p')
+                  name=$(echo "$testcase" | sed -n 's/.*name="\([^"]*\)".*/\1/p')
+                  id="${classname}.${name}"
+
+                  # Determine status
+                  if echo "$testcase" | grep -qP '<(failure|error|skipped)'; then
+                    if echo "$testcase" | grep -qP '<skipped'; then
+                      status="⏭️"
+                    else
+                      status="❌"
+                    fi
+                  else
+                    status="✅"
+                  fi
+
+                  echo "${id}|${status}"
+                done
             done
           }
 
@@ -109,6 +109,13 @@ jobs:
 
           parse_reports ".ci-reports/solution" | sort -t'|' -k1,1 > "$SOLUTION_FILE"
           parse_reports ".ci-reports/template" | sort -t'|' -k1,1 > "$TEMPLATE_FILE"
+
+          # Debug: print parsed results
+          echo "=== Solution results ===" >> $GITHUB_STEP_SUMMARY
+          cat "$SOLUTION_FILE" >> $GITHUB_STEP_SUMMARY
+          echo "=== Template results ===" >> $GITHUB_STEP_SUMMARY
+          cat "$TEMPLATE_FILE" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
 
           # Build the markdown table
           echo "## Test Case Overview" >> $GITHUB_STEP_SUMMARY
@@ -126,8 +133,8 @@ jobs:
             tpl=$(grep "^${case_id}|" "$TEMPLATE_FILE" | head -1 | cut -d'|' -f2)
             sol="${sol:—}"
             tpl="${tpl:—}"
-            # Escape pipe chars in case_id for markdown
             echo "| ${case_id} | ${sol} | ${tpl} |" >> $GITHUB_STEP_SUMMARY
           done
 
+          echo "" >> $GITHUB_STEP_SUMMARY
           echo "Test overview written to job summary."

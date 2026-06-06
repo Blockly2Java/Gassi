@@ -1,8 +1,6 @@
-# Empty
-
 <!-- START Adjust URL -->
-![Solution passing all tests](https://img.shields.io/github/actions/workflow/status/Blockly2Java/Empty/test-solution.yml?branch=main&label=Solution%20passing%20all%20tests)
-![Template compiling successfully](https://img.shields.io/github/actions/workflow/status/Blockly2Java/Empty/test-template.yml?branch=main&label=Template%20compiling%20successfully)
+![Solution passing all tests](https://img.shields.io/github/actions/workflow/status/Blockly2Java/Gassi/test-solution.yml?branch=main&label=Solution%20passing%20all%20tests)
+![Template compiling successfully](https://img.shields.io/github/actions/workflow/status/Blockly2Java/Gassi/test-template.yml?branch=main&label=Template%20compiling%20successfully)
 <!-- END Adjust URL -->
 
 ## Abstract
@@ -41,11 +39,3 @@ MyExercise/
 ├── solution/               # Reference solution (git repo)
 └── tests/                  # Test harness (git repo)
 ```
-
-<!-- TEST_RESULTS -->
-## Test Case Overview
-
-Detailed per-test-case results for the solution and template are displayed automatically in the [GitHub Actions workflow runs](https://github.com/{{GITHUB_REPOSITORY}}/actions). Click the badges above to view the latest test breakdown.
-
-Legend: ✅ passed, ❌ failed/error, ⏭️ skipped, — not present.
-<!-- END TEST_RESULTS -->
