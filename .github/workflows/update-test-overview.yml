@@ -67,24 +67,10 @@ jobs:
             cp -r build/test-results/testTemplate/. .ci-reports/template/
           fi
 
-      - name: Update README overview section
+      - name: Write test overview to job summary
         if: always()
         run: |
           python3 .github/scripts/update_readme_test_overview.py \
-            README.md \
+            --format summary \
             .ci-reports/solution \
-            .ci-reports/template
-
-      - name: Commit updated README
-        if: always()
-        run: |
-          if git diff --quiet -- README.md; then
-            echo "README overview is unchanged."
-            exit 0
-          fi
-
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add README.md
-          git commit -m "chore(ci): update test overview [skip ci]"
-          git push
+            .ci-reports/template >> $GITHUB_STEP_SUMMARY

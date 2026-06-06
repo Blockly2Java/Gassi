@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import argparse
 import glob
 import os
 import re
@@ -173,15 +174,87 @@ def replace_marked_section(readme_text, new_section):
     return f"{readme_text}{suffix}\n{block}\n"
 
 
+def build_summary_table(solution_results, template_results):
+    """Build a markdown table for display in GitHub Step Summary (stdout)."""
+    solution_cases, solution_class = split_results_by_scope(solution_results)
+    template_cases, template_class = split_results_by_scope(template_results)
+
+    solution_cases = normalize_solution_structural_names(solution_cases)
+
+    base_cases = sorted(set(solution_cases.keys()) | set(template_cases.keys()))
+    solution_cases = propagate_class_level_to_cases(solution_cases, solution_class, base_cases)
+    template_cases = propagate_class_level_to_cases(template_cases, template_class, base_cases)
+
+    all_cases = sorted(set(solution_cases.keys()) | set(template_cases.keys()))
+
+    if not all_cases and (solution_class or template_class):
+        all_classes = sorted(set(solution_class.keys()) | set(template_class.keys()))
+        for class_name in all_classes:
+            pseudo_case = f"{class_name}.*"
+            if class_name in solution_class:
+                solution_cases[pseudo_case] = solution_class[class_name]
+            if class_name in template_class:
+                template_cases[pseudo_case] = template_class[class_name]
+        all_cases = sorted(set(solution_cases.keys()) | set(template_cases.keys()))
+
+    lines = [
+        "## Test Case Overview",
+        "",
+        "Auto-updated by CI from latest test runs.",
+        "",
+        "Legend: ✅ passed, ❌ failed/error, ⏭️ skipped, — not present.",
+        "",
+        "| Test Case | Solution | Template |",
+        "| --- | --- | --- |",
+    ]
+
+    for case_id in all_cases:
+        sol = solution_cases.get(case_id, "—")
+        tpl = template_cases.get(case_id, "—")
+        lines.append(f"| {case_id} | {sol} | {tpl} |")
+
+    if not all_cases:
+        lines.append("| (no test results found) | — | — |")
+
+    return "\n".join(lines)
+
+
 def main():
-    if len(sys.argv) != 4:
-        print("Usage: update_readme_test_overview.py <readme_path> <solution_report_dir> <template_report_dir>")
+    parser = argparse.ArgumentParser(
+        description="Generate test overview table for README or GitHub Step Summary."
+    )
+    parser.add_argument(
+        "--format",
+        choices=["readme", "summary"],
+        default="summary",
+        help="Output format. 'readme' updates a file, 'summary' prints to stdout.",
+    )
+    parser.add_argument(
+        "readme_path",
+        nargs="?",
+        default=None,
+        help="Path to README.md (required for --format readme).",
+    )
+    parser.add_argument("solution_report_dir", help="Directory containing solution TEST-*.xml files.")
+    parser.add_argument("template_report_dir", help="Directory containing template TEST-*.xml files.")
+
+    args = parser.parse_args()
+
+    solution_results = parse_report_dir(args.solution_report_dir)
+    template_results = parse_report_dir(args.template_report_dir)
+
+    if args.format == "summary":
+        # Output to stdout for $GITHUB_STEP_SUMMARY
+        table = build_summary_table(solution_results, template_results)
+        print(table)
+        return 0
+
+    # Original README update logic
+    if args.readme_path is None:
+        print("Error: --format readme requires <readme_path>", file=sys.stderr)
         return 1
 
-    readme_path, solution_dir, template_dir = sys.argv[1:4]
-
-    solution_results = parse_report_dir(solution_dir)
-    template_results = parse_report_dir(template_dir)
+    readme_path = args.readme_path
     new_section = build_table(solution_results, template_results)
 
     with open(readme_path, "r", encoding="utf-8") as f:

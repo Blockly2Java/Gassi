@@ -42,14 +42,10 @@ MyExercise/
 └── tests/                  # Test harness (git repo)
 ```
 
-<!-- TEST_OVERVIEW_START -->
+<!-- TEST_RESULTS -->
 ## Test Case Overview
 
-Auto-updated by CI from latest test runs.
+Detailed per-test-case results for the solution and template are displayed automatically in the [GitHub Actions workflow runs](https://github.com/<OWNER>/<REPO>/actions). Click the badges above to view the latest test breakdown.
 
 Legend: ✅ passed, ❌ failed/error, ⏭️ skipped, — not present.
-
-| Test Case | Solution | Template |
-| --- | --- | --- |
-| (no test results found) | — | — |
-<!-- TEST_OVERVIEW_END -->
+<!-- END TEST_RESULTS -->
