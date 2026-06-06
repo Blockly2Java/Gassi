@@ -78,32 +78,56 @@ jobs:
             local report_dir="$1"
             for xml in "$report_dir"/TEST-*.xml; do
               [ -f "$xml" ] || continue
-              # Flatten XML to single line per testcase, then extract info
-              tr '\n' ' ' < "$xml" | \
-                grep -oP '<testcase[^>]*>.*?</testcase>' || true
-            done | while IFS= read -r testcase; do
-              [ -z "$testcase" ] && continue
-              # Extract classname and name attributes (use grep -oP with \K)
-              classname=$(echo "$testcase" | grep -oP 'classname="\K[^"]*' || true)
-              name=$(echo "$testcase" | grep -oP ' name="\K[^"]*' || true)
-
-              # Skip if we couldn't extract both classname and name
-              if [ -z "$classname" ] || [ -z "$name" ]; then
-                continue
-              fi
-
-              id="${classname}.${name}"
-
-              # Determine status
-              if echo "$testcase" | grep -qP '<(failure|error)'; then
-                status="❌"
-              elif echo "$testcase" | grep -qP '<skipped'; then
-                status="⏭️"
-              else
-                status="✅"
-              fi
-
-              echo "${id}|${status}"
+              
+              # Debug: dump raw XML for troubleshooting
+              echo "=== Raw XML: $xml ===" >> $GITHUB_STEP_SUMMARY
+              cat "$xml" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+              
+              # Flatten XML to single line
+              local flattened
+              flattened=$(tr '\n' ' ' < "$xml")
+              
+              # Debug: show flattened content
+              echo "=== Flattened XML (first 500 chars) ===" >> $GITHUB_STEP_SUMMARY
+              echo "${flattened:0:500}" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+              
+              # Count testcases
+              local tc_count
+              tc_count=$(printf '%s' "$flattened" | grep -oP '<testcase' | wc -l)
+              echo "=== Found $tc_count testcase elements ===" >> $GITHUB_STEP_SUMMARY
+              
+              # Extract each testcase using perl
+              # Pass the flattened XML via environment variable to avoid shell escaping issues
+              FLATTENED="$flattened" perl -e '
+                my $data = $ENV{"FLATTENED"};
+                
+                # Match both <testcase ...>...</testcase> and <testcase .../>
+                while ($data =~ /<testcase([^>]*?)>(.*?)<\/testcase>|<testcase([^>]*?)\/>/g) {
+                  my $attrs = defined($1) ? $1 : $3;
+                  my $content = defined($2) ? $2 : "";
+                  
+                  # Extract classname
+                  if ($attrs =~ /classname="([^"]*)"/) {
+                    my $classname = $1;
+                    # Extract name attribute - match name= not preceded by class
+                    if ($attrs =~ /(?:^|\s)name="([^"]*)"/) {
+                      my $name = $1;
+                      my $id = "$classname.$name";
+                      
+                      # Determine status
+                      if ($content =~ /<failure/ || $content =~ /<error/) {
+                        print "$id|❌\n";
+                      } elsif ($content =~ /<skipped/) {
+                        print "$id|⏭️\n";
+                      } else {
+                        print "$id|✅\n";
+                      }
+                    }
+                  }
+                }
+              ' || true
             done
           }
 
