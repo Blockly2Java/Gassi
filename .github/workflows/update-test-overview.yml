@@ -72,35 +72,36 @@ jobs:
         id: overview
         shell: bash
         run: |
+          set +e
           # Function to parse TEST-*.xml files and produce "classname|status" lines
-          # Uses sed+grep for portability (works with mawk, not just gawk)
           parse_reports() {
             local report_dir="$1"
             for xml in "$report_dir"/TEST-*.xml; do
               [ -f "$xml" ] || continue
               # Flatten XML to single line per testcase, then extract info
-              # Gradle JUnit reports have multi-line testcase elements
               tr '\n' ' ' < "$xml" | \
-                grep -oP '<testcase[^>]*>(.*?)</testcase>' | \
-                while IFS= read -r testcase; do
-                  # Extract classname and name attributes (use grep -oP for non-greedy match)
-                  classname=$(echo "$testcase" | grep -oP 'classname="\K[^"]*')
-                  name=$(echo "$testcase" | grep -oP 'name="\K[^"]*')
-                  id="${classname}.${name}"
+                grep -oP '<testcase[^>]*>.*?</testcase>' || true
+            done | while IFS= read -r testcase; do
+              [ -z "$testcase" ] && continue
+              # Extract classname and name attributes (use grep -oP with \K)
+              classname=$(echo "$testcase" | grep -oP 'classname="\K[^"]*' || true)
+              name=$(echo "$testcase" | grep -oP ' name="\K[^"]*' || true)
 
-                  # Determine status
-                  if echo "$testcase" | grep -qP '<(failure|error|skipped)'; then
-                    if echo "$testcase" | grep -qP '<skipped'; then
-                      status="⏭️"
-                    else
-                      status="❌"
-                    fi
-                  else
-                    status="✅"
-                  fi
+              # Skip if we couldn't extract both
+              [ -z "$classname" ] || [ -z "$name" ] && continue
 
-                  echo "${id}|${status}"
-                done
+              id="${classname}.${name}"
+
+              # Determine status
+              if echo "$testcase" | grep -qP '<(failure|error)'; then
+                status="❌"
+              elif echo "$testcase" | grep -qP '<skipped'; then
+                status="⏭️"
+              else
+                status="✅"
+              fi
+
+              echo "${id}|${status}"
             done
           }
 
@@ -129,7 +130,8 @@ jobs:
           echo "| --- | --- | --- |" >> $GITHUB_STEP_SUMMARY
 
           # Get all unique test case names
-          cut -d'|' -f1 "$SOLUTION_FILE" "$TEMPLATE_FILE" | sort -u | while IFS= read -r case_id; do
+          cut -d'|' -f1 "$SOLUTION_FILE" "$TEMPLATE_FILE" 2>/dev/null | sort -u | while IFS= read -r case_id; do
+            [ -z "$case_id" ] && continue
             sol=$(grep "^${case_id}|" "$SOLUTION_FILE" | head -1 | cut -d'|' -f2)
             tpl=$(grep "^${case_id}|" "$TEMPLATE_FILE" | head -1 | cut -d'|' -f2)
             sol="${sol:-}"
