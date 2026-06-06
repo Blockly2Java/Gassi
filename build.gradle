@@ -77,6 +77,9 @@ task testSolution(type: Test) {
     systemProperty "glass.platform", "headless"
     systemProperty "prism.order", "sw"
     systemProperty "prism.dc", "sw"
+    reports {
+        junitXml.required.set(true)
+    }
 }
 
 task testTemplate(type: Test) {
@@ -89,6 +92,9 @@ task testTemplate(type: Test) {
     systemProperty "glass.platform", "headless"
     systemProperty "prism.order", "sw"
     systemProperty "prism.dc", "sw"
+    reports {
+        junitXml.required.set(true)
+    }
 }
 
 // Default 'test' task → testSolution
