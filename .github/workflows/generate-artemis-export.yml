@@ -1,7 +1,6 @@
 name: Generate Artemis Export
 
 on:
-  push:
   workflow_dispatch:
     inputs:
       exercise_title:
@@ -63,7 +62,7 @@ jobs:
       - name: Checkout tests repo
         uses: actions/checkout@v4
         with:
-          repository: ${{ github.repository_owner }}/${{ inputs.exercise_short_name }}_parent
+          repository: ${{ github.repository_owner }}/${{ inputs.exercise_short_name }}
           token: ${{ github.token }}
           path: tests
           ref: ${{ inputs.branch }}
