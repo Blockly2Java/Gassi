@@ -130,23 +130,4 @@ jobs:
             echo "| ${case_id} | ${sol} | ${tpl} |" >> $GITHUB_STEP_SUMMARY
           done
 
-          echo "" >> $GITHUB_STEP_SUMMARY
-
-          # Embed HTML test reports
-          SOLUTION_REPORT="build/reports/tests/testSolution/index.html"
-          if [ -f "$SOLUTION_REPORT" ]; then
-            echo "## Solution Test Report" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo '<iframe src="file://'"$SOLUTION_REPORT"'" width="100%" height="800px" style="border:none;" sandbox="allow-same-origin"></iframe>' >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-          fi
-
-          TEMPLATE_REPORT="build/reports/tests/testTemplate/index.html"
-          if [ -f "$TEMPLATE_REPORT" ]; then
-            echo "## Template Test Report" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo '<iframe src="file://'"$TEMPLATE_REPORT"'" width="100%" height="800px" style="border:none;" sandbox="allow-same-origin"></iframe>' >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-          fi
-
           echo "Test overview written to job summary."

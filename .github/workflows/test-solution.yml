@@ -38,16 +38,6 @@ jobs:
       - name: Run solution tests
         run: gradle clean testSolution --no-daemon
 
-      - name: Write test report to job summary
-        if: always()
-        run: |
-          REPORT_PATH="build/reports/tests/testSolution/index.html"
-          if [ -f "$REPORT_PATH" ]; then
-            echo "## Solution Test Report" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo '<iframe src="file://'"$REPORT_PATH"'" width="100%" height="800px" style="border:none;" sandbox="allow-same-origin"></iframe>' >> $GITHUB_STEP_SUMMARY
-          fi
-
       - name: Upload test reports
         if: always()
         uses: actions/upload-artifact@v4
