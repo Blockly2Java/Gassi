@@ -44,8 +44,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
 
       - name: Run template tests
-        working-directory: parent
-        run: xvfb-run gradle testTemplate
+        run: cd parent && xvfb-run gradle testTemplate
 
       - name: Upload test reports
         if: always()
