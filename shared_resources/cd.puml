@@ -1,8 +1,12 @@
 @startuml
-
-skinparam classAttributeIconSize 0
+!include https://raw.githubusercontent.com/patrik-csak/one-dark-plantuml-theme/v1.0.1/theme.puml
 hide circle
-hide empty methods
+skinparam {
+    classAttributeIconSize 0
+    packageStyle rectangle
+    linetype ortho
+    backgroundColor transparent
+}  
 
 class Mensch {
     + Mensch(Hund hund)
