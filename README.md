@@ -13,6 +13,35 @@ This exercise focuses on modeling the interaction between two objects (human and
 
 Detailed exercise instructions can be found in the README file of the template repository.
 
+## Local Setup
+
+To set up the workspace for local development:
+
+1. Clone this repository into a new folder:
+   ```bash
+   git clone git@github.com:Blockly2Java/Gassi.git MyExercise
+   ```
+2. Navigate into the cloned folder and run the setup script:
+   ```bash
+   cd MyExercise
+   ./local-setup.sh
+   ```
+
+The script will automatically restructure the directory layout:
+- Moves this repository (with its git history) into a `parent/` subdirectory.
+- Copies IDE settings and configuration files from `root-template/` to the workspace root.
+- Clones/updates the sibling repositories (`template`, `solution`, `tests`) alongside `parent/`.
+
+Resulting folder structure:
+```text
+MyExercise/
+├── VS-Code.code-workspace  # Copied from root-template
+├── parent/                 # This repository (git repo)
+├── template/               # Student code template (git repo)
+├── solution/               # Reference solution (git repo)
+└── tests/                  # Test harness (git repo)
+```
+
 <!-- TEST_OVERVIEW_START -->
 ## Test Case Overview
 
