@@ -70,6 +70,7 @@ jobs:
       - name: Generate test overview table (shell)
         if: always()
         id: overview
+        shell: bash
         run: |
           # Function to parse TEST-*.xml files and produce "classname|status" lines
           # Uses sed+grep for portability (works with mawk, not just gawk)
@@ -82,9 +83,9 @@ jobs:
               tr '\n' ' ' < "$xml" | \
                 grep -oP '<testcase[^>]*>(.*?)</testcase>' | \
                 while IFS= read -r testcase; do
-                  # Extract classname and name attributes
-                  classname=$(echo "$testcase" | sed -n 's/.*classname="\([^"]*\)".*/\1/p')
-                  name=$(echo "$testcase" | sed -n 's/.*name="\([^"]*\)".*/\1/p')
+                  # Extract classname and name attributes (use grep -oP for non-greedy match)
+                  classname=$(echo "$testcase" | grep -oP 'classname="\K[^"]*')
+                  name=$(echo "$testcase" | grep -oP 'name="\K[^"]*')
                   id="${classname}.${name}"
 
                   # Determine status
@@ -131,8 +132,8 @@ jobs:
           cut -d'|' -f1 "$SOLUTION_FILE" "$TEMPLATE_FILE" | sort -u | while IFS= read -r case_id; do
             sol=$(grep "^${case_id}|" "$SOLUTION_FILE" | head -1 | cut -d'|' -f2)
             tpl=$(grep "^${case_id}|" "$TEMPLATE_FILE" | head -1 | cut -d'|' -f2)
-            sol="${sol:—}"
-            tpl="${tpl:—}"
+            sol="${sol:-}"
+            tpl="${tpl:-}"
             echo "| ${case_id} | ${sol} | ${tpl} |" >> $GITHUB_STEP_SUMMARY
           done
 
