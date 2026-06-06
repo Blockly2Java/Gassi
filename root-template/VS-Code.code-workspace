@@ -19,5 +19,191 @@
 		"unwantedRecommendations": [
 			"redhat.java"
 		]
+	},
+	"tasks": {
+		"version": "2.0.0",
+		"tasks": [
+			//////////////////////////////////////////////////////////
+			////////////////////// RUNNING ///////////////////////////
+			{
+				"label": "run solution",
+				"type": "shell",
+				"command": "cd solution && ./gradlew run --debug-jvm",
+				"isBackground": true,
+				"presentation": {
+					"reveal": "always",
+					"panel": "new"
+				},
+				"problemMatcher": [
+					{
+						"pattern": [
+							{
+								"regexp": ".",
+								"file": 1,
+								"location": 2,
+								"message": 3
+							}
+						],
+						"background": {
+							"activeOnStart": true,
+							"beginsPattern": "^.*Executing task.*run.*$",
+							"endsPattern": "^.*Listening for transport dt_socket at address: 5005.*$"
+						}
+					}
+				],
+			},
+			{
+				"label": "run template",
+				"type": "shell",
+				"command": "cd template && ./gradlew run --debug-jvm",
+				"isBackground": true,
+				"presentation": {
+					"reveal": "always",
+					"panel": "new"
+				},
+				"problemMatcher": [
+					{
+						"pattern": [
+							{
+								"regexp": ".",
+								"file": 1,
+								"location": 2,
+								"message": 3
+							}
+						],
+						"background": {
+							"activeOnStart": true,
+							"beginsPattern": "^.*Executing task.*run.*$",
+							"endsPattern": "^.*Listening for transport dt_socket at address: 5005.*$"
+						}
+					}
+				],
+			},
+			//////////////////////////////////////////////////////////
+			////////////////// DOCKER TESTING ////////////////////////
+			{
+				"label": "Test Solution via Docker (published tests)",
+				"type": "shell",
+				"command": "docker compose run --rm artemis-solution",
+				"options": {
+					"cwd": "${workspaceFolder}/parent"
+				},
+				"problemMatcher": [],
+				"presentation": {
+					"reveal": "always",
+					"panel": "new"
+				}
+			},
+			{
+				"label": "Test Template via Docker (published tests)",
+				"type": "shell",
+				"command": "docker compose run --rm artemis-template",
+				"options": {
+					"cwd": "${workspaceFolder}/parent"
+				},
+				"problemMatcher": [],
+				"presentation": {
+					"reveal": "always",
+					"panel": "new"
+				}
+			},
+			//////////////////////////////////////////////////////////
+			/////////////////// LOCAL TESTING ////////////////////////
+			{
+				"label": "test solution local",
+				"type": "shell",
+				"command": "cd parent && ./gradlew testSolution --debug-jvm",
+				"isBackground": true,
+				"presentation": {
+					"reveal": "always",
+					"panel": "new"
+				},
+				"problemMatcher": [
+					{
+						"pattern": [
+							{
+								"regexp": ".",
+								"file": 1,
+								"location": 2,
+								"message": 3
+							}
+						],
+						"background": {
+							"activeOnStart": true,
+							"beginsPattern": "^.*Executing task.*run.*$",
+							"endsPattern": "^.*Listening for transport dt_socket at address: 5005.*$"
+						}
+					}
+				],
+			},
+			{
+				"label": "test template local",
+				"type": "shell",
+				"command": "cd parent && ./gradlew testTemplate --debug-jvm",
+				"isBackground": true,
+				"presentation": {
+					"reveal": "always",
+					"panel": "new"
+				},
+				"problemMatcher": [
+					{
+						"pattern": [
+							{
+								"regexp": ".",
+								"file": 1,
+								"location": 2,
+								"message": 3
+							}
+						],
+						"background": {
+							"activeOnStart": true,
+							"beginsPattern": "^.*Executing task.*run.*$",
+							"endsPattern": "^.*Listening for transport dt_socket at address: 5005.*$"
+						}
+					}
+				],
+			},
+		]
+	},
+	"launch": {
+		"version": "0.2.0",
+		"configurations": [
+			//////////////////////////////////////////////////////////
+			////////////////////// RUNNING ///////////////////////////
+			{
+				"type": "java",
+				"name": "Run Solution",
+				"request": "attach",
+				"hostName": "localhost",
+				"port": 5005,
+				"preLaunchTask": "run solution"
+			},
+			{
+				"type": "java",
+				"name": "Run Template",
+				"request": "attach",
+				"hostName": "localhost",
+				"port": 5005,
+				"preLaunchTask": "run template"
+			},
+			//////////////////////////////////////////////////////////
+			//////////////////// TESTING LOCAL ///////////////////////
+			{
+				"type": "java",
+				"name": "Test Solution (local)",
+				"request": "attach",
+				"hostName": "localhost",
+				"port": 5005,
+				"preLaunchTask": "test solution local"
+			},
+			{
+				"type": "java",
+				"name": "Test Template (local)",
+				"request": "attach",
+				"hostName": "localhost",
+				"port": 5005,
+				"preLaunchTask": "test template local"
+			},
+		]
 	}
 }

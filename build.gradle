@@ -43,10 +43,10 @@ test {
 // Expected result: all tests GREEN.
 sourceSets {
     testSolution {
-        java.srcDirs = [file('solution/src'), file('tests/test')]
+        java.srcDirs = [file('../solution/src'), file('../tests/test')]
     }
     testTemplate {
-        java.srcDirs = [file('template/src'), file('tests/test')]
+        java.srcDirs = [file('../template/src'), file('../tests/test')]
     }
 }
 
