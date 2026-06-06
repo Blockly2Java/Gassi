@@ -38,6 +38,156 @@ jobs:
       - name: Run template tests
         run: gradle clean testTemplate --no-daemon
 
+      - name: Display test results
+        if: always()
+        run: |
+          set +e
+          REPORT_DIR="build/test-results/testTemplate"
+          if [ ! -d "$REPORT_DIR" ]; then
+            echo "No test results found in $REPORT_DIR"
+            exit 0
+          fi
+          
+          echo "## Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          for xml in "$REPORT_DIR"/TEST-*.xml; do
+            [ -f "$xml" ] || continue
+            basename_xml=$(basename "$xml")
+            echo "### $basename_xml" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            
+            # Use perl to parse and display test results
+            tr '\n' ' ' < "$xml" | perl -e '
+              my $data = do { local $/; <STDIN> };
+              my $pass_count = 0;
+              my $fail_count = 0;
+              my $skip_count = 0;
+              
+              while ($data =~ /<testcase([^>]*?)>(.*?)<\/testcase>|<testcase([^>]*?)\/>/g) {
+                my $attrs = defined($1) ? $1 : $3;
+                my $content = defined($2) ? $2 : "";
+                
+                if ($attrs =~ /(?:^|\s)name="([^"]*)"/) {
+                  my $name = $1;
+                  my $classname = "";
+                  if ($attrs =~ /classname="([^"]*)"/) {
+                    $classname = $1;
+                  }
+                  my $type_attr = "";
+                  if ($attrs =~ /type="([^"]*)"/) {
+                    $type_attr = $1;
+                  }
+                  
+                  if ($content =~ /<failure/) {
+                    $fail_count++;
+                    my $message = $content;
+                    $message =~ s/<failure[^>]*>//g;
+                    $message =~ s/<\/failure>//g;
+                    $message =~ s/&#10;/\n/g;
+                    $message =~ s/>/>/g;
+                    $message =~ s/</</g;
+                    $message =~ s/&/\&/g;
+                    $message =~ s/\s+/\n/g;  # collapse whitespace
+                    $message =~ s/^\s+|\s+$//g;  # trim
+                    print "❌ $classname.$name\n";
+                    print "   Message: $message\n" if $message;
+                    print "   Type: $type_attr\n" if $type_attr;
+                    print "\n";
+                  } elsif ($content =~ /<skipped/) {
+                    $skip_count++;
+                    my $message = $content;
+                    $message =~ s/<skipped[^>]*>//g;
+                    $message =~ s/<\/skipped>//g;
+                    $message =~ s/&#10;/\n/g;
+                    $message =~ s/>/>/g;
+                    $message =~ s/</</g;
+                    $message =~ s/&/\&/g;
+                    $message =~ s/\s+/\n/g;
+                    $message =~ s/^\s+|\s+$//g;
+                    print "⏭️ $classname.$name\n";
+                    print "   Message: $message\n" if $message;
+                    print "\n";
+                  } else {
+                    $pass_count++;
+                    print "✅ $classname.$name\n";
+                  }
+                }
+              }
+              
+              print "\n";
+              print "Summary: $pass_count passed, $fail_count failed, $skip_count skipped\n";
+            ' >> $GITHUB_STEP_SUMMARY
+            
+            echo "" >> $GITHUB_STEP_SUMMARY
+          done
+          
+          # Also print to the action log
+          for xml in "$REPORT_DIR"/TEST-*.xml; do
+            [ -f "$xml" ] || continue
+            echo "=== $(basename "$xml") ==="
+            tr '\n' ' ' < "$xml" | perl -e '
+              my $data = do { local $/; <STDIN> };
+              my $pass_count = 0;
+              my $fail_count = 0;
+              my $skip_count = 0;
+              
+              while ($data =~ /<testcase([^>]*?)>(.*?)<\/testcase>|<testcase([^>]*?)\/>/g) {
+                my $attrs = defined($1) ? $1 : $3;
+                my $content = defined($2) ? $2 : "";
+                
+                if ($attrs =~ /(?:^|\s)name="([^"]*)"/) {
+                  my $name = $1;
+                  my $classname = "";
+                  if ($attrs =~ /classname="([^"]*)"/) {
+                    $classname = $1;
+                  }
+                  my $type_attr = "";
+                  if ($attrs =~ /type="([^"]*)"/) {
+                    $type_attr = $1;
+                  }
+                  
+                  if ($content =~ /<failure/) {
+                    $fail_count++;
+                    my $message = $content;
+                    $message =~ s/<failure[^>]*>//g;
+                    $message =~ s/<\/failure>//g;
+                    $message =~ s/&#10;/\n/g;
+                    $message =~ s/>/>/g;
+                    $message =~ s/</</g;
+                    $message =~ s/&/\&/g;
+                    $message =~ s/\s+/\n/g;
+                    $message =~ s/^\s+|\s+$//g;
+                    print "❌ $classname.$name\n";
+                    print "   Message: $message\n" if $message;
+                    print "   Type: $type_attr\n" if $type_attr;
+                    print "\n";
+                  } elsif ($content =~ /<skipped/) {
+                    $skip_count++;
+                    my $message = $content;
+                    $message =~ s/<skipped[^>]*>//g;
+                    $message =~ s/<\/skipped>//g;
+                    $message =~ s/&#10;/\n/g;
+                    $message =~ s/>/>/g;
+                    $message =~ s/</</g;
+                    $message =~ s/&/\&/g;
+                    $message =~ s/\s+/\n/g;
+                    $message =~ s/^\s+|\s+$//g;
+                    print "⏭️ $classname.$name\n";
+                    print "   Message: $message\n" if $message;
+                    print "\n";
+                  } else {
+                    $pass_count++;
+                    print "✅ $classname.$name\n";
+                  }
+                }
+              }
+              
+              print "\n";
+              print "Summary: $pass_count passed, $fail_count failed, $skip_count skipped\n";
+            ' || true
+          done
+
       - name: Upload test reports
         if: always()
         uses: actions/upload-artifact@v4
