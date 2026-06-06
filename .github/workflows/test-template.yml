@@ -44,4 +44,3 @@ jobs:
         with:
           name: test-reports-template
           path: build/reports/tests/testTemplate
-          if-no-files-found: ignore

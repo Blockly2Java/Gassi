@@ -44,4 +44,3 @@ jobs:
         with:
           name: test-reports-solution
           path: build/reports/tests/testSolution
-          if-no-files-found: ignore
