@@ -29,7 +29,15 @@
 			{
 				"label": "run solution",
 				"type": "shell",
-				"command": "cd solution && ./gradlew clean run --debug-jvm",
+				"windows": {
+					"command": "cd solution && gradlew.bat clean run --debug-jvm"
+				},
+				"linux": {
+					"command": "cd solution && ./gradlew clean run --debug-jvm"
+				},
+				"osx": {
+					"command": "cd solution && ./gradlew clean run --debug-jvm"
+				},
 				"isBackground": true,
 				"presentation": {
 					"reveal": "always",
@@ -56,7 +64,15 @@
 			{
 				"label": "run template",
 				"type": "shell",
-				"command": "cd template && ./gradlew clean run --debug-jvm",
+				"windows": {
+					"command": "cd template && gradlew.bat clean run --debug-jvm"
+				},
+				"linux": {
+					"command": "cd template && ./gradlew clean run --debug-jvm"
+				},
+				"osx": {
+					"command": "cd template && ./gradlew clean run --debug-jvm"
+				},
 				"isBackground": true,
 				"presentation": {
 					"reveal": "always",
@@ -113,7 +129,15 @@
 			{
 				"label": "test solution local",
 				"type": "shell",
-				"command": "cd parent && gradle clean testSolutionLocal --debug-jvm",
+				"windows": {
+					"command": "cd parent && gradle clean testSolutionLocal --debug-jvm"
+				},
+				"linux": {
+					"command": "cd parent && gradle clean testSolutionLocal --debug-jvm"
+				},
+				"osx": {
+					"command": "cd parent && gradle clean testSolutionLocal --debug-jvm"
+				},
 				"isBackground": true,
 				"presentation": {
 					"reveal": "always",
@@ -140,7 +164,15 @@
 			{
 				"label": "test template local",
 				"type": "shell",
-				"command": "cd parent && gradle clean testTemplateLocal --debug-jvm",
+				"windows": {
+					"command": "cd parent && gradle clean testTemplateLocal --debug-jvm"
+				},
+				"linux": {
+					"command": "cd parent && gradle clean testTemplateLocal --debug-jvm"
+				},
+				"osx": {
+					"command": "cd parent && gradle clean testTemplateLocal --debug-jvm"
+				},
 				"isBackground": true,
 				"presentation": {
 					"reveal": "always",
@@ -169,7 +201,15 @@
 			{
 				"label": "open solution test results",
 				"type": "shell",
-				"command": "xdg-open \"${workspaceFolder}/parent/build/reports/tests/testSolution/index.html\"",
+				"windows": {
+					"command": "start \"\" \"${workspaceFolder}/parent/build/reports/tests/testSolution/index.html\""
+				},
+				"linux": {
+					"command": "xdg-open \"${workspaceFolder}/parent/build/reports/tests/testSolution/index.html\""
+				},
+				"osx": {
+					"command": "open \"${workspaceFolder}/parent/build/reports/tests/testSolution/index.html\""
+				},
 				"presentation": {
 					"reveal": "always",
 					"panel": "new"
@@ -179,7 +219,15 @@
 			{
 				"label": "open template test results",
 				"type": "shell",
-				"command": "xdg-open \"${workspaceFolder}/parent/build/reports/tests/testTemplate/index.html\"",
+				"windows": {
+					"command": "start \"\" \"${workspaceFolder}/parent/build/reports/tests/testTemplate/index.html\""
+				},
+				"linux": {
+					"command": "xdg-open \"${workspaceFolder}/parent/build/reports/tests/testTemplate/index.html\""
+				},
+				"osx": {
+					"command": "open \"${workspaceFolder}/parent/build/reports/tests/testTemplate/index.html\""
+				},
 				"presentation": {
 					"reveal": "always",
 					"panel": "new"
@@ -189,7 +237,15 @@
 			{
 				"label": "open solution local test results",
 				"type": "shell",
-				"command": "xdg-open \"${workspaceFolder}/parent/build/reports/tests/testSolutionLocal/index.html\"",
+				"windows": {
+					"command": "start \"\" \"${workspaceFolder}/parent/build/reports/tests/testSolutionLocal/index.html\""
+				},
+				"linux": {
+					"command": "xdg-open \"${workspaceFolder}/parent/build/reports/tests/testSolutionLocal/index.html\""
+				},
+				"osx": {
+					"command": "open \"${workspaceFolder}/parent/build/reports/tests/testSolutionLocal/index.html\""
+				},
 				"presentation": {
 					"reveal": "always",
 					"panel": "new"
@@ -199,7 +255,15 @@
 			{
 				"label": "open template local test results",
 				"type": "shell",
-				"command": "xdg-open \"${workspaceFolder}/parent/build/reports/tests/testTemplateLocal/index.html\"",
+				"windows": {
+					"command": "start \"\" \"${workspaceFolder}/parent/build/reports/tests/testTemplateLocal/index.html\""
+				},
+				"linux": {
+					"command": "xdg-open \"${workspaceFolder}/parent/build/reports/tests/testTemplateLocal/index.html\""
+				},
+				"osx": {
+					"command": "open \"${workspaceFolder}/parent/build/reports/tests/testTemplateLocal/index.html\""
+				},
 				"presentation": {
 					"reveal": "always",
 					"panel": "new"
