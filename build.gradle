@@ -44,9 +44,10 @@ test {
 // ── testSolution ──────────────────────────────────────────────────────────────
 // Compiles solution/src as main sources, then runs the test suite.
 // Expected result: all tests GREEN.
-def solutionSrc = file("${rootProject.projectDir}/solution/src")
-def parentSolutionSrc = file("${rootProject.projectDir}/../solution/src")
-def srcPrefix = solutionSrc.exists() ? '' : '../'
+// Path detection: use 'tests/test' as the anchor since both workflows checkout the tests repo.
+def testsSrc = file("${rootProject.projectDir}/tests/test")
+def parentTestsSrc = file("${rootProject.projectDir}/../tests/test")
+def srcPrefix = testsSrc.exists() ? '' : '../'
 
 sourceSets {
     testSolution {
