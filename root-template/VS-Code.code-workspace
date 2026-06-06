@@ -13,7 +13,8 @@
 		"java.format.enabled": false,
 		"java.signatureHelp.enabled": false,
 		"java.referencesCodeLens.enabled": false,
-		"java.inlayHints.parameterNames.enabled": "none"
+		"java.inlayHints.parameterNames.enabled": "none",
+		"java.debug.settings.onBuildFailureProceed": true
 	},
 	"extensions": {
 		"unwantedRecommendations": [
@@ -112,7 +113,7 @@
 			{
 				"label": "test solution local",
 				"type": "shell",
-				"command": "cd parent && ./gradlew clean testSolutionLocal --debug-jvm",
+				"command": "cd parent && gradle clean testSolutionLocal --debug-jvm",
 				"isBackground": true,
 				"presentation": {
 					"reveal": "always",
@@ -139,7 +140,7 @@
 			{
 				"label": "test template local",
 				"type": "shell",
-				"command": "cd parent && ./gradlew clean testTemplateLocal --debug-jvm",
+				"command": "cd parent && gradle clean testTemplateLocal --debug-jvm",
 				"isBackground": true,
 				"presentation": {
 					"reveal": "always",
