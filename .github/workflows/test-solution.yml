@@ -36,12 +36,12 @@ jobs:
           path: solution
 
       - name: Run solution tests
-        run: cd parent && gradle clean testSolution --no-daemon
+        run: gradle clean testSolution --no-daemon
 
       - name: Upload test reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: test-reports-solution
-          path: parent/build/reports/tests/testSolution
+          path: build/reports/tests/testSolution
           if-no-files-found: ignore

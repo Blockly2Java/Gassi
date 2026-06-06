@@ -45,46 +45,46 @@ jobs:
 
       - name: Run solution tests for overview
         continue-on-error: true
-        run: cd parent && gradle clean testSolution --no-daemon
+        run: gradle clean testSolution --no-daemon
 
       - name: Save solution reports
         if: always()
         run: |
           mkdir -p .ci-reports/solution
-          if [ -d parent/build/test-results/testSolution ]; then
-            cp -r parent/build/test-results/testSolution/. .ci-reports/solution/
+          if [ -d build/test-results/testSolution ]; then
+            cp -r build/test-results/testSolution/. .ci-reports/solution/
           fi
 
       - name: Run template tests for overview
         continue-on-error: true
-        run: cd parent && gradle clean testTemplate --no-daemon
+        run: gradle clean testTemplate --no-daemon
 
       - name: Save template reports
         if: always()
         run: |
           mkdir -p .ci-reports/template
-          if [ -d parent/build/test-results/testTemplate ]; then
-            cp -r parent/build/test-results/testTemplate/. .ci-reports/template/
+          if [ -d build/test-results/testTemplate ]; then
+            cp -r build/test-results/testTemplate/. .ci-reports/template/
           fi
 
       - name: Update README overview section
         if: always()
         run: |
           python3 .github/scripts/update_readme_test_overview.py \
-            parent/README.md \
+            README.md \
             .ci-reports/solution \
             .ci-reports/template
 
       - name: Commit updated README
         if: always()
         run: |
-          if git diff --quiet -- parent/README.md; then
+          if git diff --quiet -- README.md; then
             echo "README overview is unchanged."
             exit 0
           fi
 
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add parent/README.md
+          git add README.md
           git commit -m "chore(ci): update test overview [skip ci]"
           git push

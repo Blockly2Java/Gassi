@@ -36,12 +36,12 @@ jobs:
           path: template
 
       - name: Run template tests
-        run: cd parent && gradle clean testTemplate --no-daemon
+        run: gradle clean testTemplate --no-daemon
 
       - name: Upload test reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: test-reports-template
-          path: parent/build/reports/tests/testTemplate
+          path: build/reports/tests/testTemplate
           if-no-files-found: ignore

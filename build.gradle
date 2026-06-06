@@ -41,12 +41,16 @@ test {
 // ── testSolution ──────────────────────────────────────────────────────────────
 // Compiles solution/src as main sources, then runs the test suite.
 // Expected result: all tests GREEN.
+def solutionSrc = file("${rootProject.projectDir}/solution/src")
+def parentSolutionSrc = file("${rootProject.projectDir}/../solution/src")
+def srcPrefix = solutionSrc.exists() ? '' : '../'
+
 sourceSets {
     testSolution {
-        java.srcDirs = [file('../solution/src'), file('../tests/test')]
+        java.srcDirs = [file("${srcPrefix}solution/src"), file("${srcPrefix}tests/test")]
     }
     testTemplate {
-        java.srcDirs = [file('../template/src'), file('../tests/test')]
+        java.srcDirs = [file("${srcPrefix}template/src"), file("${srcPrefix}tests/test")]
     }
     test {
         java.srcDirs = [file('assignment/src'), file('test')]
