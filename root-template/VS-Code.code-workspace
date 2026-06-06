@@ -130,13 +130,13 @@
 				"label": "test solution local",
 				"type": "shell",
 				"windows": {
-					"command": "cd parent && gradle clean testSolutionLocal --debug-jvm"
+					"command": "cd parent && ./gradlew clean testSolutionLocal --debug-jvm"
 				},
 				"linux": {
-					"command": "cd parent && gradle clean testSolutionLocal --debug-jvm"
+					"command": "cd parent && ./gradlew clean testSolutionLocal --debug-jvm"
 				},
 				"osx": {
-					"command": "cd parent && gradle clean testSolutionLocal --debug-jvm"
+					"command": "cd parent && ./gradlew clean testSolutionLocal --debug-jvm"
 				},
 				"isBackground": true,
 				"presentation": {
@@ -165,13 +165,13 @@
 				"label": "test template local",
 				"type": "shell",
 				"windows": {
-					"command": "cd parent && gradle clean testTemplateLocal --debug-jvm"
+					"command": "cd parent && ./gradlew clean testTemplateLocal --debug-jvm"
 				},
 				"linux": {
-					"command": "cd parent && gradle clean testTemplateLocal --debug-jvm"
+					"command": "cd parent && ./gradlew clean testTemplateLocal --debug-jvm"
 				},
 				"osx": {
-					"command": "cd parent && gradle clean testTemplateLocal --debug-jvm"
+					"command": "cd parent && ./gradlew clean testTemplateLocal --debug-jvm"
 				},
 				"isBackground": true,
 				"presentation": {

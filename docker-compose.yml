@@ -18,7 +18,7 @@ services:
       - XAUTHORITY=/tmp/.Xauthority
       - GRADLE_USER_HOME=/home/ubuntu/.gradle
     working_dir: /workspace/parent
-    command: gradle clean testSolution --no-daemon
+    command: ./gradlew clean testSolution --no-daemon
 
   artemis-template:
     image: ghcr.io/valentinherrmann/artemis-maven-docker:latest
@@ -33,4 +33,4 @@ services:
       - XAUTHORITY=/tmp/.Xauthority
       - GRADLE_USER_HOME=/home/ubuntu/.gradle
     working_dir: /workspace/parent
-    command: gradle clean testTemplate --no-daemon
+    command: ./gradlew clean testTemplate --no-daemon

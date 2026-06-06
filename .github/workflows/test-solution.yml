@@ -36,7 +36,7 @@ jobs:
           path: solution
 
       - name: Run solution tests
-        run: gradle clean testSolution --no-daemon
+        run: ./gradlew clean testSolution --no-daemon
 
       - name: Display test results
         if: always()

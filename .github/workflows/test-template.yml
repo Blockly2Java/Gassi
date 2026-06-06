@@ -36,7 +36,7 @@ jobs:
           path: template
 
       - name: Run template tests
-        run: gradle clean testTemplate --no-daemon
+        run: ./gradlew clean testTemplate --no-daemon
 
       - name: Display test results
         if: always()

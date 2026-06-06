@@ -45,7 +45,7 @@ jobs:
 
       - name: Run solution tests for overview
         continue-on-error: true
-        run: gradle clean testSolution --no-daemon
+        run: ./gradlew clean testSolution --no-daemon
 
       - name: Save solution reports
         if: always()
@@ -57,7 +57,7 @@ jobs:
 
       - name: Run template tests for overview
         continue-on-error: true
-        run: gradle clean testTemplate --no-daemon
+        run: ./gradlew clean testTemplate --no-daemon
 
       - name: Save template reports
         if: always()
