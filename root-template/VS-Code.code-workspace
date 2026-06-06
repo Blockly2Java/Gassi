@@ -28,7 +28,7 @@
 			{
 				"label": "run solution",
 				"type": "shell",
-				"command": "cd solution && ./gradlew run --debug-jvm",
+				"command": "cd solution && ./gradlew clean run --debug-jvm",
 				"isBackground": true,
 				"presentation": {
 					"reveal": "always",
@@ -55,7 +55,7 @@
 			{
 				"label": "run template",
 				"type": "shell",
-				"command": "cd template && ./gradlew run --debug-jvm",
+				"command": "cd template && ./gradlew clean run --debug-jvm",
 				"isBackground": true,
 				"presentation": {
 					"reveal": "always",
@@ -112,7 +112,7 @@
 			{
 				"label": "test solution local",
 				"type": "shell",
-				"command": "cd parent && ./gradlew testSolution --debug-jvm",
+				"command": "cd parent && ./gradlew clean testSolutionLocal --debug-jvm",
 				"isBackground": true,
 				"presentation": {
 					"reveal": "always",
@@ -139,7 +139,7 @@
 			{
 				"label": "test template local",
 				"type": "shell",
-				"command": "cd parent && ./gradlew testTemplate --debug-jvm",
+				"command": "cd parent && ./gradlew clean testTemplateLocal --debug-jvm",
 				"isBackground": true,
 				"presentation": {
 					"reveal": "always",
@@ -185,6 +185,26 @@
 				},
 				"problemMatcher": []
 			},
+			{
+				"label": "open solution local test results",
+				"type": "shell",
+				"command": "xdg-open \"${workspaceFolder}/parent/build/reports/tests/testSolutionLocal/index.html\"",
+				"presentation": {
+					"reveal": "always",
+					"panel": "new"
+				},
+				"problemMatcher": []
+			},
+			{
+				"label": "open template local test results",
+				"type": "shell",
+				"command": "xdg-open \"${workspaceFolder}/parent/build/reports/tests/testTemplateLocal/index.html\"",
+				"presentation": {
+					"reveal": "always",
+					"panel": "new"
+				},
+				"problemMatcher": []
+			},
 		]
 	},
 	"launch": {
@@ -217,7 +237,7 @@
 				"hostName": "localhost",
 				"port": 5005,
 				"preLaunchTask": "test solution local",
-				"postDebugTask": "open solution test results"
+				"postDebugTask": "open solution local test results"
 			},
 			{
 				"type": "java",
@@ -226,7 +246,7 @@
 				"hostName": "localhost",
 				"port": 5005,
 				"preLaunchTask": "test template local",
-				"postDebugTask": "open template test results"
+				"postDebugTask": "open template local test results"
 			},
 			//////////////////////////////////////////////////////////
 			/////////////////// TESTING DOCKER ///////////////////////
