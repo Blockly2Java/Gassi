@@ -79,24 +79,9 @@ jobs:
             for xml in "$report_dir"/TEST-*.xml; do
               [ -f "$xml" ] || continue
               
-              # Debug: dump raw XML for troubleshooting
-              echo "=== Raw XML: $xml ===" >> $GITHUB_STEP_SUMMARY
-              cat "$xml" >> $GITHUB_STEP_SUMMARY
-              echo "" >> $GITHUB_STEP_SUMMARY
-              
               # Flatten XML to single line
               local flattened
               flattened=$(tr '\n' ' ' < "$xml")
-              
-              # Debug: show flattened content
-              echo "=== Flattened XML (first 500 chars) ===" >> $GITHUB_STEP_SUMMARY
-              echo "${flattened:0:500}" >> $GITHUB_STEP_SUMMARY
-              echo "" >> $GITHUB_STEP_SUMMARY
-              
-              # Count testcases
-              local tc_count
-              tc_count=$(printf '%s' "$flattened" | grep -oP '<testcase' | wc -l)
-              echo "=== Found $tc_count testcase elements ===" >> $GITHUB_STEP_SUMMARY
               
               # Extract each testcase using perl
               # Pass the flattened XML via environment variable to avoid shell escaping issues
@@ -137,21 +122,6 @@ jobs:
 
           parse_reports ".ci-reports/solution" | sort -t'|' -k1,1 > "$SOLUTION_FILE"
           parse_reports ".ci-reports/template" | sort -t'|' -k1,1 > "$TEMPLATE_FILE"
-
-          # Debug: print parsed results
-          echo "=== Debug: Solution results ===" >> $GITHUB_STEP_SUMMARY
-          cat "$SOLUTION_FILE" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "=== Debug: Template results ===" >> $GITHUB_STEP_SUMMARY
-          cat "$TEMPLATE_FILE" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "=== Debug: Solution file size: $(wc -c < "$SOLUTION_FILE") bytes, $(wc -l < "$SOLUTION_FILE") lines ===" >> $GITHUB_STEP_SUMMARY
-          echo "=== Debug: Template file size: $(wc -c < "$TEMPLATE_FILE") bytes, $(wc -l < "$TEMPLATE_FILE") lines ===" >> $GITHUB_STEP_SUMMARY
-          echo "=== Debug: XML files in solution dir ===" >> $GITHUB_STEP_SUMMARY
-          ls -la .ci-reports/solution/ 2>&1 >> $GITHUB_STEP_SUMMARY
-          echo "=== Debug: XML files in template dir ===" >> $GITHUB_STEP_SUMMARY
-          ls -la .ci-reports/template/ 2>&1 >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
 
           # Build the markdown table
           echo "## Test Case Overview" >> $GITHUB_STEP_SUMMARY
