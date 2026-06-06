@@ -40,12 +40,15 @@ while ($data =~ /<testcase([^>]*?)>(.*?)<\/testcase>|<testcase([^>]*?)\/>/g) {
       $message =~ s/<\/failure>//g;
       $message = decode_html($message);
       $message =~ s/^\s+|\s+$//g;
+      # Replace newlines with <br> for GitHub markdown rendering
+      $message =~ s/\n/<br>/g;
+      # Collapse multiple spaces to single space
       $message =~ s/\s+/ /g;
       if (length($message) > 500) {
         $message = substr($message, 0, 497) . "...";
       }
       print "❌ $classname.$name\n";
-      print "   Message: $message\n" if $message;
+      print "   Message: $message<br>\n" if $message;
       print "   Type: $type_attr\n" if $type_attr;
       print "\n";
     } elsif ($content =~ /<skipped/) {
@@ -55,12 +58,13 @@ while ($data =~ /<testcase([^>]*?)>(.*?)<\/testcase>|<testcase([^>]*?)\/>/g) {
       $message =~ s/<\/skipped>//g;
       $message = decode_html($message);
       $message =~ s/^\s+|\s+$//g;
+      $message =~ s/\n/<br>/g;
       $message =~ s/\s+/ /g;
       if (length($message) > 500) {
         $message = substr($message, 0, 497) . "...";
       }
       print "⏭️ $classname.$name\n";
-      print "   Message: $message\n" if $message;
+      print "   Message: $message<br>\n" if $message;
       print "\n";
     } else {
       $pass_count++;
