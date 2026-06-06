@@ -67,10 +67,86 @@ jobs:
             cp -r build/test-results/testTemplate/. .ci-reports/template/
           fi
 
-      - name: Write test overview to job summary
+      - name: Generate test overview table (shell)
         if: always()
+        id: overview
         run: |
-          python3 .github/scripts/update_readme_test_overview.py \
-            --format summary \
-            .ci-reports/solution \
-            .ci-reports/template >> $GITHUB_STEP_SUMMARY
+          # Function to parse TEST-*.xml files and produce "classname|status" lines
+          parse_reports() {
+            local report_dir="$1"
+            for xml in "$report_dir"/TEST-*.xml; do
+              [ -f "$xml" ] || continue
+              # Each testcase line: classname="..." name="..."
+              # Check for failure/error/skipped children
+              awk '
+                /<testcase / {
+                  classname = ""; name = ""
+                  match($0, /classname="([^"]*)"/, c)
+                  match($0, /name="([^"]*)"/, n)
+                  if (c[1] != "") classname = c[1]
+                  if (n[1] != "") name = n[1]
+                  id = (classname != "" ? classname "." : "") name
+                  status = "✅"
+                  has_failure = 0
+                  has_error = 0
+                  has_skipped = 0
+                }
+                /<failure / || /<error / { has_failure = 1 }
+                /<skipped / { has_skipped = 1 }
+                /<\/testcase>/ {
+                  if (has_failure || has_error) status = "❌"
+                  else if (has_skipped) status = "⏭️"
+                  else status = "✅"
+                  print id "|" status
+                }
+              ' "$xml"
+            done
+          }
+
+          # Collect results into temp files
+          SOLUTION_FILE=$(mktemp)
+          TEMPLATE_FILE=$(mktemp)
+
+          parse_reports ".ci-reports/solution" | sort -t'|' -k1,1 > "$SOLUTION_FILE"
+          parse_reports ".ci-reports/template" | sort -t'|' -k1,1 > "$TEMPLATE_FILE"
+
+          # Build the markdown table
+          echo "## Test Case Overview" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Auto-updated by CI from latest test runs." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Legend: ✅ passed, ❌ failed/error, ⏭️ skipped, — not present." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Test Case | Solution | Template |" >> $GITHUB_STEP_SUMMARY
+          echo "| --- | --- | --- |" >> $GITHUB_STEP_SUMMARY
+
+          # Get all unique test case names
+          cut -d'|' -f1 "$SOLUTION_FILE" "$TEMPLATE_FILE" | sort -u | while IFS= read -r case_id; do
+            sol=$(grep "^${case_id}|" "$SOLUTION_FILE" | head -1 | cut -d'|' -f2)
+            tpl=$(grep "^${case_id}|" "$TEMPLATE_FILE" | head -1 | cut -d'|' -f2)
+            sol="${sol:—}"
+            tpl="${tpl:—}"
+            # Escape pipe chars in case_id for markdown
+            echo "| ${case_id} | ${sol} | ${tpl} |" >> $GITHUB_STEP_SUMMARY
+          done
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Embed HTML test reports
+          SOLUTION_REPORT="build/reports/tests/testSolution/index.html"
+          if [ -f "$SOLUTION_REPORT" ]; then
+            echo "## Solution Test Report" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo '<iframe src="file://'"$SOLUTION_REPORT"'" width="100%" height="800px" style="border:none;" sandbox="allow-same-origin"></iframe>' >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          TEMPLATE_REPORT="build/reports/tests/testTemplate/index.html"
+          if [ -f "$TEMPLATE_REPORT" ]; then
+            echo "## Template Test Report" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo '<iframe src="file://'"$TEMPLATE_REPORT"'" width="100%" height="800px" style="border:none;" sandbox="allow-same-origin"></iframe>' >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "Test overview written to job summary."

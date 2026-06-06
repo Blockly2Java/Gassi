@@ -45,7 +45,7 @@ MyExercise/
 <!-- TEST_RESULTS -->
 ## Test Case Overview
 
-Detailed per-test-case results for the solution and template are displayed automatically in the [GitHub Actions workflow runs](https://github.com/<OWNER>/<REPO>/actions). Click the badges above to view the latest test breakdown.
+Detailed per-test-case results for the solution and template are displayed automatically in the [GitHub Actions workflow runs](https://github.com/{{GITHUB_REPOSITORY}}/actions). Click the badges above to view the latest test breakdown.
 
 Legend: ✅ passed, ❌ failed/error, ⏭️ skipped, — not present.
 <!-- END TEST_RESULTS -->
