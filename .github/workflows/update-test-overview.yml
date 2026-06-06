@@ -87,8 +87,10 @@ jobs:
               classname=$(echo "$testcase" | grep -oP 'classname="\K[^"]*' || true)
               name=$(echo "$testcase" | grep -oP ' name="\K[^"]*' || true)
 
-              # Skip if we couldn't extract both
-              [ -z "$classname" ] || [ -z "$name" ] && continue
+              # Skip if we couldn't extract both classname and name
+              if [ -z "$classname" ] || [ -z "$name" ]; then
+                continue
+              fi
 
               id="${classname}.${name}"
 
@@ -129,11 +131,17 @@ jobs:
           echo "| Test Case | Solution | Template |" >> $GITHUB_STEP_SUMMARY
           echo "| --- | --- | --- |" >> $GITHUB_STEP_SUMMARY
 
+          # Debug: show file sizes
+          echo "Solution file size: $(wc -c < "$SOLUTION_FILE") bytes, $(wc -l < "$SOLUTION_FILE") lines" >> $GITHUB_STEP_SUMMARY
+          echo "Template file size: $(wc -c < "$TEMPLATE_FILE") bytes, $(wc -l < "$TEMPLATE_FILE") lines" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
           # Get all unique test case names
+          # Use awk for lookup to avoid grep regex issues with [ ] ( ) in test names
           cut -d'|' -f1 "$SOLUTION_FILE" "$TEMPLATE_FILE" 2>/dev/null | sort -u | while IFS= read -r case_id; do
             [ -z "$case_id" ] && continue
-            sol=$(grep "^${case_id}|" "$SOLUTION_FILE" | head -1 | cut -d'|' -f2)
-            tpl=$(grep "^${case_id}|" "$TEMPLATE_FILE" | head -1 | cut -d'|' -f2)
+            sol=$(awk -F'|' -v id="$case_id" '$1 == id {print $2; exit}' "$SOLUTION_FILE")
+            tpl=$(awk -F'|' -v id="$case_id" '$1 == id {print $2; exit}' "$TEMPLATE_FILE")
             sol="${sol:-}"
             tpl="${tpl:-}"
             echo "| ${case_id} | ${sol} | ${tpl} |" >> $GITHUB_STEP_SUMMARY
