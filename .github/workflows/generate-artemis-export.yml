@@ -69,17 +69,17 @@ jobs:
           fetch-depth: 0
 
       - name: Generate Exercise-Details JSON
-        run: python3 .github/scripts/generate-exercise-details.py \
+        run: python3 parent/.github/scripts/generate-exercise-details.py \
           --title "${{ inputs.exercise_title }}" \
           --short-name "${{ inputs.exercise_short_name }}" \
           --id "${{ inputs.exercise_id }}" \
           --course-prefix "${{ inputs.course_prefix }}" \
           --max-points "${{ inputs.max_points }}" \
-          --template-file .github/scripts/exercise-details-template.json \
+          --template-file parent/.github/scripts/exercise-details-template.json \
           --output Exercise-Details-${{ inputs.exercise_short_name }}.json
 
       - name: Generate Problem Statement Markdown
-        run: python3 .github/scripts/generate-problem-statement.py \
+        run: python3 parent/.github/scripts/generate-problem-statement.py \
           --source template/README.md \
           --output Problem-Statement-${{ inputs.exercise_short_name }}.md
 
