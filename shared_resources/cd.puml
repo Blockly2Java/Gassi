@@ -4,7 +4,6 @@ hide circle
 skinparam {
     classAttributeIconSize 0
     packageStyle rectangle
-    linetype ortho
     backgroundColor transparent
 }  
 
