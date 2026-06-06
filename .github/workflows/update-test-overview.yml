@@ -7,6 +7,9 @@ jobs:
   update-overview:
     name: Update README test overview
     runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/valentinherrmann/artemis-maven-docker:latest
+      options: --user 1000:1000
     steps:
       - name: Checkout coordinator
         uses: actions/checkout@v4
@@ -41,38 +44,32 @@ jobs:
           token: ${{ github.token }}
           path: template
 
-      - name: Set up JDK 25
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '25'
-          cache: gradle
-
-      - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
-
       - name: Run solution tests for overview
         continue-on-error: true
-        run: cd parent && xvfb-run gradle testSolution
+        working-directory: parent
+        run: xvfb-run gradle clean testSolution --no-daemon
 
       - name: Save solution reports
         if: always()
+        working-directory: parent
         run: |
-          mkdir -p .ci-reports/solution
-          if [ -d parent/build/test-results/testSolution ]; then
-            cp -r parent/build/test-results/testSolution/. .ci-reports/solution/
+          mkdir -p ../.ci-reports/solution
+          if [ -d build/test-results/testSolution ]; then
+            cp -r build/test-results/testSolution/. ../.ci-reports/solution/
           fi
 
       - name: Run template tests for overview
         continue-on-error: true
-        run: cd parent && xvfb-run gradle testTemplate
+        working-directory: parent
+        run: xvfb-run gradle clean testTemplate --no-daemon
 
       - name: Save template reports
         if: always()
+        working-directory: parent
         run: |
-          mkdir -p .ci-reports/template
-          if [ -d parent/build/test-results/testTemplate ]; then
-            cp -r parent/build/test-results/testTemplate/. .ci-reports/template/
+          mkdir -p ../.ci-reports/template
+          if [ -d build/test-results/testTemplate ]; then
+            cp -r build/test-results/testTemplate/. ../.ci-reports/template/
           fi
 
       - name: Update README overview section
@@ -85,14 +82,15 @@ jobs:
 
       - name: Commit updated README
         if: always()
+        working-directory: parent
         run: |
-          if git diff --quiet -- parent/README.md; then
+          if git diff --quiet -- README.md; then
             echo "README overview is unchanged."
             exit 0
           fi
 
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add parent/README.md
+          git add README.md
           git commit -m "chore(ci): update test overview [skip ci]"
           git push
