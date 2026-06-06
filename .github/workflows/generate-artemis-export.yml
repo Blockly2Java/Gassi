@@ -1,6 +1,7 @@
 name: Generate Artemis Export
 
 on:
+  push:
   workflow_dispatch:
     inputs:
       exercise_title:
