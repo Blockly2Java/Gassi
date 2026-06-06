@@ -47,9 +47,11 @@ while ($data =~ /<testcase([^>]*?)>(.*?)<\/testcase>|<testcase([^>]*?)\/>/g) {
       if (length($message) > 500) {
         $message = substr($message, 0, 497) . "...";
       }
+      # take $message and duplicate all linebreaks:
+      $message =~ s/\n/\n\n/g;
       print "❌ $classname.$name\n";
       print "   Message: $message<br><br>\n" if $message;
-      print "   Type: $type_attr\n" if $type_attr;
+      print "   Type: $type_attr<br><br>\n" if $type_attr;
       print "\n";
     } elsif ($content =~ /<skipped/) {
       $skip_count++;
