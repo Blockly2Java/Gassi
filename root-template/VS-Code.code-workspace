@@ -1,0 +1,23 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"java.server.launchMode": "LightWeight",
+		"java.configuration.updateBuildConfiguration": "disabled",
+		"java.project.importOnFirstTimeOpen": "manual",
+		"java.jvm.args": "-Xmx256m",
+		"java.completion.enabled": false,
+		"java.format.enabled": false,
+		"java.signatureHelp.enabled": false,
+		"java.referencesCodeLens.enabled": false,
+		"java.inlayHints.parameterNames.enabled": "none"
+	},
+	"extensions": {
+		"unwantedRecommendations": [
+			"redhat.java"
+		]
+	}
+}
