@@ -48,6 +48,9 @@ sourceSets {
     testTemplate {
         java.srcDirs = [file('../template/src'), file('../tests/test')]
     }
+    test {
+        java.srcDirs = [file('assignment/src'), file('test')]
+    }
 }
 
 configurations {
