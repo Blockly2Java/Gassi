@@ -115,10 +115,18 @@ jobs:
           parse_reports ".ci-reports/template" | sort -t'|' -k1,1 > "$TEMPLATE_FILE"
 
           # Debug: print parsed results
-          echo "=== Solution results ===" >> $GITHUB_STEP_SUMMARY
+          echo "=== Debug: Solution results ===" >> $GITHUB_STEP_SUMMARY
           cat "$SOLUTION_FILE" >> $GITHUB_STEP_SUMMARY
-          echo "=== Template results ===" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "=== Debug: Template results ===" >> $GITHUB_STEP_SUMMARY
           cat "$TEMPLATE_FILE" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "=== Debug: Solution file size: $(wc -c < "$SOLUTION_FILE") bytes, $(wc -l < "$SOLUTION_FILE") lines ===" >> $GITHUB_STEP_SUMMARY
+          echo "=== Debug: Template file size: $(wc -c < "$TEMPLATE_FILE") bytes, $(wc -l < "$TEMPLATE_FILE") lines ===" >> $GITHUB_STEP_SUMMARY
+          echo "=== Debug: XML files in solution dir ===" >> $GITHUB_STEP_SUMMARY
+          ls -la .ci-reports/solution/ 2>&1 >> $GITHUB_STEP_SUMMARY
+          echo "=== Debug: XML files in template dir ===" >> $GITHUB_STEP_SUMMARY
+          ls -la .ci-reports/template/ 2>&1 >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
           # Build the markdown table
@@ -130,11 +138,6 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Test Case | Solution | Template |" >> $GITHUB_STEP_SUMMARY
           echo "| --- | --- | --- |" >> $GITHUB_STEP_SUMMARY
-
-          # Debug: show file sizes
-          echo "Solution file size: $(wc -c < "$SOLUTION_FILE") bytes, $(wc -l < "$SOLUTION_FILE") lines" >> $GITHUB_STEP_SUMMARY
-          echo "Template file size: $(wc -c < "$TEMPLATE_FILE") bytes, $(wc -l < "$TEMPLATE_FILE") lines" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
 
           # Get all unique test case names
           # Use awk for lookup to avoid grep regex issues with [ ] ( ) in test names
