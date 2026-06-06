@@ -37,7 +37,7 @@ jobs:
 
       - name: Run solution tests
         working-directory: parent
-        run: xvfb-run gradle clean testSolution --no-daemon
+        run: gradle clean testSolution --no-daemon
 
       - name: Upload test reports
         if: always()

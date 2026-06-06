@@ -37,7 +37,7 @@ jobs:
 
       - name: Run template tests
         working-directory: parent
-        run: xvfb-run gradle clean testTemplate --no-daemon
+        run: gradle clean testTemplate --no-daemon
 
       - name: Upload test reports
         if: always()

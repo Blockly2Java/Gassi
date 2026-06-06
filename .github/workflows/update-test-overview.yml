@@ -46,7 +46,7 @@ jobs:
       - name: Run solution tests for overview
         continue-on-error: true
         working-directory: parent
-        run: xvfb-run gradle clean testSolution --no-daemon
+        run: gradle clean testSolution --no-daemon
 
       - name: Save solution reports
         if: always()
@@ -60,7 +60,7 @@ jobs:
       - name: Run template tests for overview
         continue-on-error: true
         working-directory: parent
-        run: xvfb-run gradle clean testTemplate --no-daemon
+        run: gradle clean testTemplate --no-daemon
 
       - name: Save template reports
         if: always()
