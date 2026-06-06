@@ -44,6 +44,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
 
       - name: Run template tests
+        working-directory: parent
         run: xvfb-run gradle testTemplate
 
       - name: Upload test reports
@@ -51,5 +52,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: test-reports-template
-          path: build/reports/tests/testTemplate
+          path: parent/build/reports/tests/testTemplate
           if-no-files-found: ignore

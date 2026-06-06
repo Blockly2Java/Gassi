@@ -163,6 +163,28 @@
 					}
 				],
 			},
+			//////////////////////////////////////////////////////////
+			////////////////// OPEN TEST RESULTS /////////////////////
+			{
+				"label": "open solution test results",
+				"type": "shell",
+				"command": "xdg-open \"${workspaceFolder}/parent/build/reports/tests/testSolution/index.html\"",
+				"presentation": {
+					"reveal": "always",
+					"panel": "new"
+				},
+				"problemMatcher": []
+			},
+			{
+				"label": "open template test results",
+				"type": "shell",
+				"command": "xdg-open \"${workspaceFolder}/parent/build/reports/tests/testTemplate/index.html\"",
+				"presentation": {
+					"reveal": "always",
+					"panel": "new"
+				},
+				"problemMatcher": []
+			},
 		]
 	},
 	"launch": {
@@ -194,7 +216,8 @@
 				"request": "attach",
 				"hostName": "localhost",
 				"port": 5005,
-				"preLaunchTask": "test solution local"
+				"preLaunchTask": "test solution local",
+				"postDebugTask": "open solution test results"
 			},
 			{
 				"type": "java",
@@ -202,7 +225,8 @@
 				"request": "attach",
 				"hostName": "localhost",
 				"port": 5005,
-				"preLaunchTask": "test template local"
+				"preLaunchTask": "test template local",
+				"postDebugTask": "open template test results"
 			},
 			//////////////////////////////////////////////////////////
 			/////////////////// TESTING DOCKER ///////////////////////
@@ -211,6 +235,7 @@
 				"request": "launch",
 				"name": "Test Solution (docker)",
 				"preLaunchTask": "test solution docker",
+				"postDebugTask": "open solution test results",
 				"runtimeExecutable": "echo"
 			},
 			{
@@ -218,6 +243,7 @@
 				"request": "launch",
 				"name": "Test Template (docker)",
 				"preLaunchTask": "test template docker",
+				"postDebugTask": "open template test results",
 				"runtimeExecutable": "echo"
 			}
 		]

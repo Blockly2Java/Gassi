@@ -1,39 +1,36 @@
 # Simulates Artemis grading environment locally.
 # Requires sub-repos to be present (run local-setup.sh first).
-# Usage:
-#   docker compose run --rm artemis-solution
-#   docker compose run --rm artemis-template
-
-version: "3.8"
+# Usage (from workspace root):
+#   docker compose -f parent/docker-compose.yml run --rm artemis-solution
+#   docker compose -f parent/docker-compose.yml run --rm artemis-template
 
 services:
   artemis-solution:
     image: ghcr.io/valentinherrmann/artemis-maven-docker:latest
+    user: "1000:1000"
     volumes:
-      - .:/workspace
-      - gradle-cache:/workspace/.gradle
+      - ..:/workspace
+      - ./../.gradle:/home/ubuntu/.gradle
       - /tmp/.X11-unix:/tmp/.X11-unix:ro
       - ${XAUTHORITY:-~/.Xauthority}:/tmp/.Xauthority:ro
     environment:
       - DISPLAY=${DISPLAY}
       - XAUTHORITY=/tmp/.Xauthority
-      - GRADLE_USER_HOME=/workspace/.gradle
-    working_dir: /workspace
-    command: gradle clean testSolution
+      - GRADLE_USER_HOME=/home/ubuntu/.gradle
+    working_dir: /workspace/parent
+    command: gradle clean testSolution --no-daemon
 
   artemis-template:
     image: ghcr.io/valentinherrmann/artemis-maven-docker:latest
+    user: "1000:1000"
     volumes:
-      - .:/workspace
-      - gradle-cache:/workspace/.gradle
+      - ..:/workspace
+      - ./../.gradle:/home/ubuntu/.gradle
       - /tmp/.X11-unix:/tmp/.X11-unix:ro
       - ${XAUTHORITY:-~/.Xauthority}:/tmp/.Xauthority:ro
     environment:
       - DISPLAY=${DISPLAY}
       - XAUTHORITY=/tmp/.Xauthority
-      - GRADLE_USER_HOME=/workspace/.gradle
-    working_dir: /workspace
-    command: gradle clean testTemplate
-
-volumes:
-  gradle-cache:
+      - GRADLE_USER_HOME=/home/ubuntu/.gradle
+    working_dir: /workspace/parent
+    command: gradle clean testTemplate --no-daemon
