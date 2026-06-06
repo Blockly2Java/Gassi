@@ -1,10 +1,29 @@
 {
     "java.configuration.updateBuildConfiguration": "automatic",
-    "java.test.config": [
-        {
-            "name": "tests",
-            "workingDirectory": "${workspaceFolder}/tests",
-            "projectName": "TestsSolution"
-        }
-    ]
+    "java.jdt.ls.vmargs": "-XX:+UseParallelGC -Xms4g -Xmx8g",
+    "java.import.gradle.enabled": true,
+    "java.compile.nullAnalysis.mode": "automatic",
+    "java.project.extraSourceDirs": [
+        "${workspaceFolder}/tests/test"
+    ],
+    "java.project.sourcePaths": [
+        "${workspaceFolder}/solution/src",
+        "${workspaceFolder}/template/src"
+    ],
+    "java.project.outputPath": "${workspaceFolder}/.gradle-build",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+        "source.organizeImports": "explicit"
+    },
+    "docker.compose.enabled": true,
+    "files.exclude": {
+        "**/.gradle": true,
+        "**/build": true,
+        "**/target": true
+    },
+    "search.exclude": {
+        "**/node_modules": true,
+        "**/build": true,
+        "**/.gradle": true
+    }
 }
