@@ -44,7 +44,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
 
       - name: Run solution tests
-        run: gradle testSolution
+        run: xvfb-run gradle testSolution
 
       - name: Upload test reports
         if: always()

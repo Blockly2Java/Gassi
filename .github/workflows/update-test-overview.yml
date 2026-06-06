@@ -53,7 +53,7 @@ jobs:
 
       - name: Run solution tests for overview
         continue-on-error: true
-        run: gradle testSolution
+        run: xvfb-run gradle testSolution
 
       - name: Save solution reports
         if: always()
@@ -65,7 +65,7 @@ jobs:
 
       - name: Run template tests for overview
         continue-on-error: true
-        run: gradle testTemplate
+        run: xvfb-run gradle testTemplate
 
       - name: Save template reports
         if: always()
