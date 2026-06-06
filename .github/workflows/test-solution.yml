@@ -64,6 +64,19 @@ jobs:
               my $fail_count = 0;
               my $skip_count = 0;
               
+              # Helper to decode HTML entities
+              sub decode_html {
+                my ($s) = @_;
+                $s =~ s/</</g;
+                $s =~ s/>/>/g;
+                $s =~ s/&/\&/g;
+                $s =~ s/"/"/g;
+                $s =~ s/&#39;/'"'"'/g;
+                $s =~ s/&#10;/\n/g;
+                $s =~ s/&#9;/  /g;
+                return $s;
+              }
+              
               while ($data =~ /<testcase([^>]*?)>(.*?)<\/testcase>|<testcase([^>]*?)\/>/g) {
                 my $attrs = defined($1) ? $1 : $3;
                 my $content = defined($2) ? $2 : "";
@@ -81,15 +94,19 @@ jobs:
                   
                   if ($content =~ /<failure/) {
                     $fail_count++;
+                    # Extract failure message content
                     my $message = $content;
                     $message =~ s/<failure[^>]*>//g;
                     $message =~ s/<\/failure>//g;
-                    $message =~ s/&#10;/\n/g;
-                    $message =~ s/>/>/g;
-                    $message =~ s/</</g;
-                    $message =~ s/&/\&/g;
-                    $message =~ s/\s+/\n/g;  # collapse whitespace
-                    $message =~ s/^\s+|\s+$//g;  # trim
+                    # Decode HTML entities
+                    $message = decode_html($message);
+                    # Trim and collapse whitespace to spaces
+                    $message =~ s/^\s+|\s+$//g;
+                    $message =~ s/\s+/ /g;
+                    # Take only first 500 chars to avoid huge output
+                    if (length($message) > 500) {
+                      $message = substr($message, 0, 497) . "...";
+                    }
                     print "❌ $classname.$name\n";
                     print "   Message: $message\n" if $message;
                     print "   Type: $type_attr\n" if $type_attr;
@@ -99,12 +116,12 @@ jobs:
                     my $message = $content;
                     $message =~ s/<skipped[^>]*>//g;
                     $message =~ s/<\/skipped>//g;
-                    $message =~ s/&#10;/\n/g;
-                    $message =~ s/>/>/g;
-                    $message =~ s/</</g;
-                    $message =~ s/&/\&/g;
-                    $message =~ s/\s+/\n/g;
+                    $message = decode_html($message);
                     $message =~ s/^\s+|\s+$//g;
+                    $message =~ s/\s+/ /g;
+                    if (length($message) > 500) {
+                      $message = substr($message, 0, 497) . "...";
+                    }
                     print "⏭️ $classname.$name\n";
                     print "   Message: $message\n" if $message;
                     print "\n";
@@ -132,6 +149,18 @@ jobs:
               my $fail_count = 0;
               my $skip_count = 0;
               
+              sub decode_html {
+                my ($s) = @_;
+                $s =~ s/</</g;
+                $s =~ s/>/>/g;
+                $s =~ s/&/\&/g;
+                $s =~ s/"/"/g;
+                $s =~ s/&#39;/'"'"'/g;
+                $s =~ s/&#10;/\n/g;
+                $s =~ s/&#9;/  /g;
+                return $s;
+              }
+              
               while ($data =~ /<testcase([^>]*?)>(.*?)<\/testcase>|<testcase([^>]*?)\/>/g) {
                 my $attrs = defined($1) ? $1 : $3;
                 my $content = defined($2) ? $2 : "";
@@ -152,12 +181,12 @@ jobs:
                     my $message = $content;
                     $message =~ s/<failure[^>]*>//g;
                     $message =~ s/<\/failure>//g;
-                    $message =~ s/&#10;/\n/g;
-                    $message =~ s/>/>/g;
-                    $message =~ s/</</g;
-                    $message =~ s/&/\&/g;
-                    $message =~ s/\s+/\n/g;
+                    $message = decode_html($message);
                     $message =~ s/^\s+|\s+$//g;
+                    $message =~ s/\s+/ /g;
+                    if (length($message) > 500) {
+                      $message = substr($message, 0, 497) . "...";
+                    }
                     print "❌ $classname.$name\n";
                     print "   Message: $message\n" if $message;
                     print "   Type: $type_attr\n" if $type_attr;
@@ -167,12 +196,12 @@ jobs:
                     my $message = $content;
                     $message =~ s/<skipped[^>]*>//g;
                     $message =~ s/<\/skipped>//g;
-                    $message =~ s/&#10;/\n/g;
-                    $message =~ s/>/>/g;
-                    $message =~ s/</</g;
-                    $message =~ s/&/\&/g;
-                    $message =~ s/\s+/\n/g;
+                    $message = decode_html($message);
                     $message =~ s/^\s+|\s+$//g;
+                    $message =~ s/\s+/ /g;
+                    if (length($message) > 500) {
+                      $message = substr($message, 0, 497) . "...";
+                    }
                     print "⏭️ $classname.$name\n";
                     print "   Message: $message\n" if $message;
                     print "\n";
