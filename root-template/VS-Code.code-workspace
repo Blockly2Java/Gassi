@@ -82,7 +82,7 @@
 			//////////////////////////////////////////////////////////
 			////////////////// DOCKER TESTING ////////////////////////
 			{
-				"label": "Test Solution via Docker (published tests)",
+				"label": "test solution docker",
 				"type": "shell",
 				"command": "docker compose run --rm artemis-solution",
 				"options": {
@@ -95,7 +95,7 @@
 				}
 			},
 			{
-				"label": "Test Template via Docker (published tests)",
+				"label": "test template docker",
 				"type": "shell",
 				"command": "docker compose run --rm artemis-template",
 				"options": {
@@ -204,6 +204,22 @@
 				"port": 5005,
 				"preLaunchTask": "test template local"
 			},
+			//////////////////////////////////////////////////////////
+			/////////////////// TESTING DOCKER ///////////////////////
+			{
+				"type": "node",
+				"request": "launch",
+				"name": "Test Solution (docker)",
+				"preLaunchTask": "test solution docker",
+				"runtimeExecutable": "echo"
+			},
+			{
+				"type": "node",
+				"request": "launch",
+				"name": "Test Template (docker)",
+				"preLaunchTask": "test template docker",
+				"runtimeExecutable": "echo"
+			}
 		]
 	}
 }
