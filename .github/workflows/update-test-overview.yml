@@ -9,7 +9,6 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/valentinherrmann/artemis-maven-docker:latest
-      options: --user 1000:1000
     steps:
       - name: Checkout coordinator
         uses: actions/checkout@v4

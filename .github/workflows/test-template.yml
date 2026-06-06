@@ -9,7 +9,6 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/valentinherrmann/artemis-maven-docker:latest
-      options: --user 1000:1000
     steps:
       - name: Derive sub-repo names
         id: repos
