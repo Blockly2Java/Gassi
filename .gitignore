@@ -8,3 +8,4 @@ build/
 
 # Local dev artifacts
 home/
+bin/

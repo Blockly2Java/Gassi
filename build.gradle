@@ -1,108 +1,334 @@
-// build.gradle — top-level coordinator.
-// Runs the test suite directly with Gradle (no Maven involved).
-// No exercise-specific content; works in any fork unchanged.
-//
-// Usage:
-//   gradle testSolution   → tests against solution/src (must be green)
-//   gradle testTemplate   → tests against template/src (failures expected)
-//   gradle test           → alias for testSolution
-
 plugins {
-    id 'java'
-    id 'org.openjfx.javafxplugin' version '0.1.0'
+    id 'java-library'
+    id 'jacoco'
 }
 
-javafx {
-    version = '26'
-    modules = [ 'javafx.controls' ]
+// ---------------------------------------------------------------------------
+// Configurable properties (mirrors Maven pom.xml properties)
+// ---------------------------------------------------------------------------
+def exerciseTestArtifactId = findProperty('exerciseTestArtifactId') ?: 'gassi_tests'
+def exerciseTestVersion = findProperty('exerciseTestVersion') ?: '[0.1.0,)'
+def glassPlatform = findProperty('glass.platform') ?: 'Headless'
+def osName = System.getProperty('os.name').toLowerCase(Locale.ROOT)
+def osArch = System.getProperty('os.arch').toLowerCase(Locale.ROOT)
+def isArm64 = osArch.contains('aarch64') || osArch.contains('arm64')
+def javafxPlatform
+if (osName.contains('win')) {
+    javafxPlatform = 'win'
+} else if (osName.contains('mac')) {
+    javafxPlatform = isArm64 ? 'mac-aarch64' : 'mac'
+} else if (osName.contains('linux')) {
+    javafxPlatform = isArm64 ? 'linux-aarch64' : 'linux'
+} else {
+    throw new GradleException("Unsupported OS for JavaFX: ${osName} ${osArch}")
 }
 
-repositories {
-    mavenCentral()
-}
+// ---------------------------------------------------------------------------
+// Group, Artifact, Version (mirrors Maven groupId/artifactId/version)
+// ---------------------------------------------------------------------------
+group = 'b2j'
+version = '1.0'
 
-dependencies {
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
-    testRuntimeOnly    'org.junit.platform:junit-platform-launcher:1.10.2'
-    testImplementation 'org.assertj:assertj-core:3.24.2'
-    testImplementation 'io.github.valentinherrmann:levenshtein-testing-framework:+'
-    testImplementation 'de.tum.in.ase:artemis-java-test-sandbox:1.15.0'
-    // B2J Graphics Library — provides Group, Circle, Line, etc. used by solution/template source
-    testImplementation 'de.blockly2java:graphics:[0.1.0,)'
-}
-
-// Shared test configuration
-test {
-    useJUnitPlatform()
-    testClassesDirs = sourceSets.test.output.classesDirs
-    classpath        = sourceSets.test.runtimeClasspath
-    systemProperty "glass.platform", "headless"
-    systemProperty "prism.order", "sw"
-    systemProperty "prism.dc", "sw"
-}
-
-// ── testSolution ──────────────────────────────────────────────────────────────
-// Compiles solution/src as main sources, then runs the test suite.
-// Expected result: all tests GREEN.
-// Path detection: use 'tests/test' as the anchor since both workflows checkout the tests repo.
-def testsSrc = file("${rootProject.projectDir}/tests/test")
-def parentTestsSrc = file("${rootProject.projectDir}/../tests/test")
-def srcPrefix = testsSrc.exists() ? '' : '../'
-
-sourceSets {
-    testSolution {
-        java.srcDirs = [file("${srcPrefix}solution/src"), file("${srcPrefix}tests/test")]
-    }
-    testTemplate {
-        java.srcDirs = [file("${srcPrefix}template/src"), file("${srcPrefix}tests/test")]
-    }
-    test {
-        java.srcDirs = [file('assignment/src'), file('test')]
-    }
-}
-
-configurations {
-    testSolutionImplementation.extendsFrom testImplementation
-    testSolutionRuntimeOnly.extendsFrom   testRuntimeOnly
-    testTemplateImplementation.extendsFrom testImplementation
-    testTemplateRuntimeOnly.extendsFrom   testRuntimeOnly
-}
-
-task testSolution(type: Test) {
-    group       = 'verification'
-    description = 'Runs the test suite against solution/src (must be green)'
-    useJUnitPlatform()
-    testClassesDirs = sourceSets.testSolution.output.classesDirs
-    classpath       = sourceSets.testSolution.runtimeClasspath
-    systemProperty "glass.platform", "headless"
-    systemProperty "prism.order", "sw"
-    systemProperty "prism.dc", "sw"
-    reports {
-        junitXml.required.set(true)
-    }
-}
-
-task testTemplate(type: Test) {
-    group       = 'verification'
-    description = 'Runs the test suite against template/src (failures expected)'
-    useJUnitPlatform()
-    ignoreFailures = true
-    testClassesDirs = sourceSets.testTemplate.output.classesDirs
-    classpath       = sourceSets.testTemplate.runtimeClasspath
-    systemProperty "glass.platform", "headless"
-    systemProperty "prism.order", "sw"
-    systemProperty "prism.dc", "sw"
-    reports {
-        junitXml.required.set(true)
-    }
-}
-
-// Default 'test' task → testSolution
-test.dependsOn testSolution
-test.enabled = false   // disable the default test task; use testSolution directly
-
+// ---------------------------------------------------------------------------
+// Java configuration
+// ---------------------------------------------------------------------------
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(25)
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Repositories
+// ---------------------------------------------------------------------------
+repositories {
+    mavenCentral()
+    maven {
+        url = uri('https://central.sonatype.com/repository/maven-snapshots')
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Dependencies
+// ---------------------------------------------------------------------------
+dependencies {
+    testImplementation 'org.assertj:assertj-core:3.24.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+    testImplementation 'org.junit.platform:junit-platform-launcher:1.10.2'
+    testImplementation 'de.tum.in.ase:artemis-java-test-sandbox:1.15.0'
+    testImplementation "de.blockly2java.exercises:${exerciseTestArtifactId}:${exerciseTestVersion}"
+    implementation "de.blockly2java:graphics:[0.3.0,)"
+
+    // JavaFX dependencies — use platform classifiers so actual JARs resolve
+    testImplementation "org.openjfx:javafx-base:26:${javafxPlatform}"
+    testImplementation "org.openjfx:javafx-controls:26:${javafxPlatform}"
+    testImplementation "org.openjfx:javafx-graphics:26:${javafxPlatform}"
+}
+
+// ---------------------------------------------------------------------------
+// Source sets — mirrors Maven sourceDirectory / testSourceDirectory
+// ---------------------------------------------------------------------------
+// Path detection for local vs root executions
+def testsSrc = file("${rootProject.projectDir}/tests/test")
+def srcPrefix = testsSrc.exists() ? '' : '../'
+
+sourceSets {
+    main {
+        java { srcDirs = ['assignment/src'] }
+        resources { srcDirs = ['assignment/src'] }
+    }
+    solution {
+        java { srcDirs = ["${srcPrefix}solution/src"] }
+        resources { srcDirs = ["${srcPrefix}solution/src"] }
+    }
+    template {
+        java { srcDirs = ["${srcPrefix}template/src"] }
+        resources { srcDirs = ["${srcPrefix}template/src"] }
+    }
+    test {
+        java { srcDirs = ['test-disabled'] }
+        resources { srcDirs = ['test-disabled'] }
+    }
+    
+    // Custom Local Test Source Sets
+    testSolutionLocal {
+        java { srcDirs = ["${srcPrefix}solution/src", "${srcPrefix}tests/test"] }
+        resources { srcDirs = ["${srcPrefix}solution/src", "${srcPrefix}tests/test"] }
+    }
+    testTemplateLocal {
+        java { srcDirs = ["${srcPrefix}template/src", "${srcPrefix}tests/test"] }
+        resources { srcDirs = ["${srcPrefix}template/src", "${srcPrefix}tests/test"] }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Configuration extensions for custom source sets
+// ---------------------------------------------------------------------------
+configurations.named('solutionImplementation') {
+    extendsFrom(configurations.getByName('implementation'))
+}
+configurations.named('solutionRuntimeOnly') {
+    extendsFrom(configurations.getByName('runtimeOnly'))
+}
+configurations.named('templateImplementation') {
+    extendsFrom(configurations.getByName('implementation'))
+}
+configurations.named('templateRuntimeOnly') {
+    extendsFrom(configurations.getByName('runtimeOnly'))
+}
+
+// Map testing dependencies to the custom local testing source sets
+configurations.maybeCreate('testSolutionLocalImplementation').extendsFrom(configurations.getByName('testImplementation'), configurations.getByName('implementation'))
+configurations.maybeCreate('testSolutionLocalRuntimeOnly').extendsFrom(configurations.getByName('testRuntimeOnly'), configurations.getByName('runtimeOnly'))
+configurations.maybeCreate('testTemplateLocalImplementation').extendsFrom(configurations.getByName('testImplementation'), configurations.getByName('implementation'))
+configurations.maybeCreate('testTemplateLocalRuntimeOnly').extendsFrom(configurations.getByName('testRuntimeOnly'), configurations.getByName('runtimeOnly'))
+
+// ---------------------------------------------------------------------------
+// Extract TestManager from dependency into test output
+// (equivalent to Maven Surefire's dependenciesToScan)
+// ---------------------------------------------------------------------------
+def testJar = configurations.testRuntimeClasspath.find { it.name.contains(exerciseTestArtifactId) }
+
+task extractTestManager(type: Copy) {
+    description = 'Extract TestManager from dependency for Gradle test discovery'
+    group = 'verification'
+
+    dependsOn configurations.testRuntimeClasspath
+
+    from zipTree(testJar)
+    into layout.buildDirectory.dir('classes/java/test')
+
+    include 'b2j/test/TestManager.class'
+}
+
+// Make testClasses depend on extracted TestManager
+tasks.named('testClasses') {
+    dependsOn extractTestManager
+}
+
+// ---------------------------------------------------------------------------
+// JavaFX module path argument provider
+// ---------------------------------------------------------------------------
+abstract class JavaFxModulePathArgumentProvider implements CommandLineArgumentProvider {
+    @InputFiles
+    @SkipWhenEmpty
+    @PathSensitive(PathSensitivity.NONE)
+    abstract ConfigurableFileCollection getJavaFxJars()
+
+    @Override
+    Iterable<String> asArguments() {
+        def javafxJars = javaFxJars.files.findAll {
+            it.name.startsWith('javafx-') && it.name.endsWith('.jar')
+        }
+        def modulePath = javafxJars.collect { it.absolutePath }.join(File.pathSeparator)
+        return [
+            '--module-path', modulePath,
+            '--add-modules', 'javafx.controls,javafx.graphics,javafx.base'
+        ]
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Test task configuration (default: student assignment)
+// ---------------------------------------------------------------------------
+test {
+    testClassesDirs = sourceSets.test.output + files(layout.buildDirectory.dir('classes/java/test'))
+
+    useJUnitPlatform()
+
+    // Pass glass.platform system property (default: Headless)
+    systemProperty 'glass.platform', glassPlatform
+
+    // Add JavaFX to module path (JavaFX 26 JARs are modular)
+    jvmArgs '-Dfile.encoding=UTF-8',
+            '-Djunit.jupiter.execution.parallel.enabled=false',
+            '--enable-native-access', 'ALL-UNNAMED'
+
+    // Inject JavaFX module path dynamically
+    def javaFxArgProvider = objects.newInstance(JavaFxModulePathArgumentProvider)
+    javaFxArgProvider.javaFxJars.from(configurations.testRuntimeClasspath)
+    jvmArgumentProviders.add(javaFxArgProvider)
+
+    // Include only the TestManager class (mirrors Surefire include pattern)
+    include '**/b2j/test/TestManager.class'
+
+    finalizedBy jacocoTestReport
+}
+
+// ---------------------------------------------------------------------------
+// Convenience tasks for testing with different source directories
+// ---------------------------------------------------------------------------
+
+task testSolution(type: Test) {
+    description = 'Run remote tests against the solution source code'
+    group = 'verification'
+
+    dependsOn extractTestManager
+
+    testClassesDirs = sourceSets.test.output + files(layout.buildDirectory.dir('classes/java/test'))
+    classpath = sourceSets.test.output + sourceSets.solution.output + configurations.solutionRuntimeClasspath + configurations.testRuntimeClasspath
+
+    useJUnitPlatform()
+    systemProperty 'glass.platform', glassPlatform
+    jvmArgs '-Dfile.encoding=UTF-8',
+            '-Djunit.jupiter.execution.parallel.enabled=false',
+            '--enable-native-access', 'ALL-UNNAMED'
+
+    def javaFxArgProvider = objects.newInstance(JavaFxModulePathArgumentProvider)
+    javaFxArgProvider.javaFxJars.from(configurations.testRuntimeClasspath)
+    jvmArgumentProviders.add(javaFxArgProvider)
+    
+    include '**/b2j/test/TestManager.class'
+    finalizedBy jacocoTestReport
+}
+
+task testTemplate(type: Test) {
+    description = 'Run remote tests against the template source code (failures expected)'
+    group = 'verification'
+    ignoreFailures = true 
+
+    dependsOn extractTestManager
+
+    testClassesDirs = sourceSets.test.output + files(layout.buildDirectory.dir('classes/java/test'))
+    classpath = sourceSets.test.output + sourceSets.template.output + configurations.templateRuntimeClasspath + configurations.testRuntimeClasspath
+
+    useJUnitPlatform()
+    systemProperty 'glass.platform', glassPlatform
+    jvmArgs '-Dfile.encoding=UTF-8',
+            '-Djunit.jupiter.execution.parallel.enabled=false',
+            '--enable-native-access', 'ALL-UNNAMED'
+
+    def javaFxArgProvider = objects.newInstance(JavaFxModulePathArgumentProvider)
+    javaFxArgProvider.javaFxJars.from(configurations.testRuntimeClasspath)
+    jvmArgumentProviders.add(javaFxArgProvider)
+    
+    include '**/b2j/test/TestManager.class'
+    finalizedBy jacocoTestReport
+}
+
+task testSolutionLocal(type: Test) {
+    description = 'Run local tests against the solution source code'
+    group = 'verification'
+
+    testClassesDirs = sourceSets.testSolutionLocal.output.classesDirs
+    classpath = sourceSets.testSolutionLocal.runtimeClasspath
+
+    useJUnitPlatform()
+    systemProperty 'glass.platform', glassPlatform
+    jvmArgs '-Dfile.encoding=UTF-8',
+            '-Djunit.jupiter.execution.parallel.enabled=false',
+            '--enable-native-access', 'ALL-UNNAMED'
+
+    def javaFxArgProvider = objects.newInstance(JavaFxModulePathArgumentProvider)
+    javaFxArgProvider.javaFxJars.from(configurations.testSolutionLocalRuntimeClasspath)
+    jvmArgumentProviders.add(javaFxArgProvider)
+
+    finalizedBy jacocoTestReport
+}
+
+task testTemplateLocal(type: Test) {
+    description = 'Run local tests against the template source code (failures expected)'
+    group = 'verification'
+    ignoreFailures = true 
+
+    testClassesDirs = sourceSets.testTemplateLocal.output.classesDirs
+    classpath = sourceSets.testTemplateLocal.runtimeClasspath
+
+    useJUnitPlatform()
+    systemProperty 'glass.platform', glassPlatform
+    jvmArgs '-Dfile.encoding=UTF-8',
+            '-Djunit.jupiter.execution.parallel.enabled=false',
+            '--enable-native-access', 'ALL-UNNAMED'
+
+    def javaFxArgProvider = objects.newInstance(JavaFxModulePathArgumentProvider)
+    javaFxArgProvider.javaFxJars.from(configurations.testTemplateLocalRuntimeClasspath)
+    jvmArgumentProviders.add(javaFxArgProvider)
+
+    finalizedBy jacocoTestReport
+}
+
+// ---------------------------------------------------------------------------
+// Enforcer-like check: verify no forbidden classes in main output
+// ---------------------------------------------------------------------------
+task enforceNoStudentCodeInTrustedPackages(type: Copy) {
+    description = 'Enforce that no trusted-package files exist in build output.'
+    group = 'verification'
+
+    dependsOn compileJava
+
+    doLast {
+        def outputDir = layout.buildDirectory.dir('classes/java/main').get().asFile
+        def forbiddenPaths = [
+            'ch/qos/logback/', 'com/intellij/', 'com/sun/', 'de/tum/in/test/api/',
+            'java/', 'javax/', 'jdk/', 'net/jqwik/', 'org/apache/', 'org/assertj/',
+            'org/eclipse/', 'org/jacoco/', 'org/json/', 'org/junit/', 'org/opentest4j/',
+            'sun/', 'org/gradle/', 'worker/org/gradle/', 'com/github/javaparser/'
+        ]
+
+        def violations = []
+        forbiddenPaths.each { path ->
+            def target = new File(outputDir, path)
+            if (target.exists()) {
+                violations.add("Forbidden file/directory found: ${target.path}")
+            }
+        }
+
+        if (!violations.isEmpty()) {
+            throw new org.gradle.api.GradleException(
+                "Enforcer check failed! Forbidden files detected:\n  - " + violations.join('\n  - ')
+            )
+        }
+    }
+}
+
+check.dependsOn enforceNoStudentCodeInTrustedPackages
+
+// ---------------------------------------------------------------------------
+// Jacoco report
+// ---------------------------------------------------------------------------
+jacocoTestReport {
+    reports {
+        xml.required = false
+        html.required = false
     }
 }

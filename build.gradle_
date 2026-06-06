@@ -1,0 +1,108 @@
+// build.gradle — top-level coordinator.
+// Runs the test suite directly with Gradle (no Maven involved).
+// No exercise-specific content; works in any fork unchanged.
+//
+// Usage:
+//   gradle testSolution   → tests against solution/src (must be green)
+//   gradle testTemplate   → tests against template/src (failures expected)
+//   gradle test           → alias for testSolution
+
+plugins {
+    id 'java'
+    id 'org.openjfx.javafxplugin' version '0.1.0'
+}
+
+javafx {
+    version = '26'
+    modules = [ 'javafx.controls' ]
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+    testRuntimeOnly    'org.junit.platform:junit-platform-launcher:1.10.2'
+    testImplementation 'org.assertj:assertj-core:3.24.2'
+    testImplementation 'io.github.valentinherrmann:levenshtein-testing-framework:+'
+    testImplementation 'de.tum.in.ase:artemis-java-test-sandbox:1.15.0'
+    // B2J Graphics Library — provides Group, Circle, Line, etc. used by solution/template source
+    testImplementation 'de.blockly2java:graphics:[0.1.0,)'
+}
+
+// Shared test configuration
+test {
+    useJUnitPlatform()
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath        = sourceSets.test.runtimeClasspath
+    systemProperty "glass.platform", "headless"
+    systemProperty "prism.order", "sw"
+    systemProperty "prism.dc", "sw"
+}
+
+// ── testSolution ──────────────────────────────────────────────────────────────
+// Compiles solution/src as main sources, then runs the test suite.
+// Expected result: all tests GREEN.
+// Path detection: use 'tests/test' as the anchor since both workflows checkout the tests repo.
+def testsSrc = file("${rootProject.projectDir}/tests/test")
+def parentTestsSrc = file("${rootProject.projectDir}/../tests/test")
+def srcPrefix = testsSrc.exists() ? '' : '../'
+
+sourceSets {
+    testSolution {
+        java.srcDirs = [file("${srcPrefix}solution/src"), file("${srcPrefix}tests/test")]
+    }
+    testTemplate {
+        java.srcDirs = [file("${srcPrefix}template/src"), file("${srcPrefix}tests/test")]
+    }
+    test {
+        java.srcDirs = [file('assignment/src'), file('test')]
+    }
+}
+
+configurations {
+    testSolutionImplementation.extendsFrom testImplementation
+    testSolutionRuntimeOnly.extendsFrom   testRuntimeOnly
+    testTemplateImplementation.extendsFrom testImplementation
+    testTemplateRuntimeOnly.extendsFrom   testRuntimeOnly
+}
+
+task testSolution(type: Test) {
+    group       = 'verification'
+    description = 'Runs the test suite against solution/src (must be green)'
+    useJUnitPlatform()
+    testClassesDirs = sourceSets.testSolution.output.classesDirs
+    classpath       = sourceSets.testSolution.runtimeClasspath
+    systemProperty "glass.platform", "headless"
+    systemProperty "prism.order", "sw"
+    systemProperty "prism.dc", "sw"
+    reports {
+        junitXml.required.set(true)
+    }
+}
+
+task testTemplate(type: Test) {
+    group       = 'verification'
+    description = 'Runs the test suite against template/src (failures expected)'
+    useJUnitPlatform()
+    ignoreFailures = true
+    testClassesDirs = sourceSets.testTemplate.output.classesDirs
+    classpath       = sourceSets.testTemplate.runtimeClasspath
+    systemProperty "glass.platform", "headless"
+    systemProperty "prism.order", "sw"
+    systemProperty "prism.dc", "sw"
+    reports {
+        junitXml.required.set(true)
+    }
+}
+
+// Default 'test' task → testSolution
+test.dependsOn testSolution
+test.enabled = false   // disable the default test task; use testSolution directly
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
+}
