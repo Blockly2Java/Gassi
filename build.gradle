@@ -36,6 +36,9 @@ test {
     useJUnitPlatform()
     testClassesDirs = sourceSets.test.output.classesDirs
     classpath        = sourceSets.test.runtimeClasspath
+    systemProperty "glass.platform", "headless"
+    systemProperty "prism.order", "sw"
+    systemProperty "prism.dc", "sw"
 }
 
 // ── testSolution ──────────────────────────────────────────────────────────────
@@ -62,17 +65,6 @@ configurations {
     testSolutionRuntimeOnly.extendsFrom   testRuntimeOnly
     testTemplateImplementation.extendsFrom testImplementation
     testTemplateRuntimeOnly.extendsFrom   testRuntimeOnly
-}
-
-task test(type: Test) {
-    group       = 'verification'
-    description = 'Runs the test suite against assignment/src (must be green)'
-    useJUnitPlatform()
-    testClassesDirs = sourceSets.test.output.classesDirs
-    classpath       = sourceSets.test.runtimeClasspath
-    systemProperty "glass.platform", "headless"
-    systemProperty "prism.order", "sw"
-    systemProperty "prism.dc", "sw"
 }
 
 task testSolution(type: Test) {
