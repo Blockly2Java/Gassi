@@ -1,29 +1,39 @@
 {
     "java.configuration.updateBuildConfiguration": "automatic",
-    "java.jdt.ls.vmargs": "-XX:+UseParallelGC -Xms4g -Xmx8g",
     "java.import.gradle.enabled": true,
     "java.compile.nullAnalysis.mode": "automatic",
-    "java.project.extraSourceDirs": [
-        "${workspaceFolder}/tests/test"
-    ],
-    "java.project.sourcePaths": [
-        "${workspaceFolder}/solution/src",
-        "${workspaceFolder}/template/src"
-    ],
-    "java.project.outputPath": "${workspaceFolder}/.gradle-build",
+    "java.server.launchMode": "Standard",
+    "java.project.importOnFirstTimeOpen": "automatic",
+    "java.import.gradle.builder.enabled": true,
     "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
         "source.organizeImports": "explicit"
     },
-    "docker.compose.enabled": true,
     "files.exclude": {
+        "**/gradlew*": true,
+        "**/gradle": true,
         "**/.gradle": true,
+        "**/bin": true,
         "**/build": true,
+        "**/out": true,
         "**/target": true
     },
     "search.exclude": {
-        "**/node_modules": true,
+        "**/gradlew*": true,
+        "**/gradle": true,
+        "**/.gradle": true,
+        "**/bin": true,
         "**/build": true,
-        "**/.gradle": true
+        "**/out": true,
+        "**/target": true
+    },
+    "files.watcherExclude": {
+        "**/gradlew*": true,
+        "**/gradle": true,
+        "**/.gradle": true,
+        "**/bin": true,
+        "**/build": true,
+        "**/out": true,
+        "**/target": true
     }
 }
