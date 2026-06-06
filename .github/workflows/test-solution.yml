@@ -36,8 +36,7 @@ jobs:
           path: solution
 
       - name: Run solution tests
-        working-directory: parent
-        run: gradle clean testSolution --no-daemon
+        run: cd parent && gradle clean testSolution --no-daemon
 
       - name: Upload test reports
         if: always()

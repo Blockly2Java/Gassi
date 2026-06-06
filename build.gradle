@@ -13,7 +13,7 @@ plugins {
 }
 
 javafx {
-    version = '21'
+    version = '26'
     modules = [ 'javafx.controls' ]
 }
 
@@ -60,12 +60,26 @@ configurations {
     testTemplateRuntimeOnly.extendsFrom   testRuntimeOnly
 }
 
+task test(type: Test) {
+    group       = 'verification'
+    description = 'Runs the test suite against assignment/src (must be green)'
+    useJUnitPlatform()
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath       = sourceSets.test.runtimeClasspath
+    systemProperty "glass.platform", "headless"
+    systemProperty "prism.order", "sw"
+    systemProperty "prism.dc", "sw"
+}
+
 task testSolution(type: Test) {
     group       = 'verification'
     description = 'Runs the test suite against solution/src (must be green)'
     useJUnitPlatform()
     testClassesDirs = sourceSets.testSolution.output.classesDirs
     classpath       = sourceSets.testSolution.runtimeClasspath
+    systemProperty "glass.platform", "headless"
+    systemProperty "prism.order", "sw"
+    systemProperty "prism.dc", "sw"
 }
 
 task testTemplate(type: Test) {
@@ -75,6 +89,9 @@ task testTemplate(type: Test) {
     ignoreFailures = true
     testClassesDirs = sourceSets.testTemplate.output.classesDirs
     classpath       = sourceSets.testTemplate.runtimeClasspath
+    systemProperty "glass.platform", "headless"
+    systemProperty "prism.order", "sw"
+    systemProperty "prism.dc", "sw"
 }
 
 // Default 'test' task → testSolution

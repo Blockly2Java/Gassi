@@ -36,8 +36,7 @@ jobs:
           path: template
 
       - name: Run template tests
-        working-directory: parent
-        run: gradle clean testTemplate --no-daemon
+        run: cd parent && gradle clean testTemplate --no-daemon
 
       - name: Upload test reports
         if: always()
