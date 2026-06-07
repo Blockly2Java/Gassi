@@ -39,3 +39,23 @@ MyExercise/
 ├── solution/               # Reference solution (git repo)
 └── tests/                  # Test harness (git repo)
 ```
+
+## Exporting to Artemis
+
+This repository generates a ZIP file that can be directly imported into Artemis.
+
+### Local Export
+
+
+1. Ensure the workspace is set up (run `./local-setup.sh` if needed)
+2. Run the export command: `<exercise-name>` must match the Repository-Name
+   ```bash
+   ./parent/.github/scripts/local-export.sh --name <exercise-name>
+   ```
+
+3. The ZIP file is created in the `Artemis_Export/` directory
+4. Import the ZIP into Artemis via the exercise creation/edit UI
+
+### GitHub Export
+
+The export runs automatically on GitHub when code is pushed to any branch. Download the generated ZIP from the workflow artifacts and import it into Artemis.
