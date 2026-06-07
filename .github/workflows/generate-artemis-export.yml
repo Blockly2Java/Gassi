@@ -27,28 +27,27 @@ jobs:
 
       - name: Run local-export.sh
         run: 
-          ls -a 
-          &&
           bash parent/.github/scripts/local-export.sh 
           --name ${{ inputs.exercise_short_name }} 
           --template-branch ${{ inputs.branch }} 
           --solution-branch ${{ inputs.branch }} 
           --parent-branch ${{ inputs.branch }}
-          &&
-          ls -a
 
-      - name: Debug - Show Variables and Files
+      - name: Clean up build artifacts for publishing
         run: |
-          echo "=== Variables ==="
-          echo "Course Prefix: '${{ inputs.course_prefix }}'"
-          echo "Exercise Short Name: '${{ inputs.exercise_short_name }}'"
-          echo "Expected Path: Artemis_Export/${{ inputs.exercise_short_name }}-*.zip"
-          
-          echo "=== Root Directory Contents ==="
-          ls -la
-          
           echo "=== Artemis_Export Directory Contents ==="
           ls -la Artemis_Export/ || echo "Directory Artemis_Export does not exist in the current path!"
+
+          cd Artemis_Export/
+          rm *-solution.zip || echo "No solution zip files to remove"
+          rm *-exercise.zip || echo "No exercise zip files to remove"
+          rm *-tests.zip || echo "No tests zip files to remove"
+
+          unzip -o ${inputs.exercise_short_name}-*-*.zip -d ./
+          rm ${inputs.exercise_short_name}-*-*.zip
+
+          ls -la
+
 
       - name: Upload Artemis Export Artifact
         uses: actions/upload-artifact@v4
