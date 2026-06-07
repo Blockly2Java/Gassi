@@ -42,7 +42,7 @@ jobs:
           echo "=== Variables ==="
           echo "Course Prefix: '${{ inputs.course_prefix }}'"
           echo "Exercise Short Name: '${{ inputs.exercise_short_name }}'"
-          echo "Expected Path: Artemis_Export/${{ inputs.exercise_short_name }}-*.zip
+          echo "Expected Path: Artemis_Export/${{ inputs.exercise_short_name }}-*.zip"
           
           echo "=== Root Directory Contents ==="
           ls -la
