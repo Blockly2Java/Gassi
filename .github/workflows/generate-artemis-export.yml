@@ -27,12 +27,14 @@ jobs:
 
       - name: Run local-export.sh
         run: 
-          ls -a
+          ls -a 
+          &&
           bash parent/.github/scripts/local-export.sh \
           --name ${{ inputs.exercise_short_name }} \
           --template-branch ${{ inputs.branch }} \
           --solution-branch ${{ inputs.branch }} \
           --parent-branch ${{ inputs.branch }}
+          &&
           ls -a
 
       - name: Upload Artemis Export Artifact
