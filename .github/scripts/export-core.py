@@ -145,7 +145,8 @@ def package_export(
     
     # Generate timestamp and output filename
     timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
-    output_filename = f"{course_prefix}-{short_name}-{exercise_id}-{timestamp}.zip"
+    #output_filename = f"{course_prefix}-{short_name}-{exercise_id}-{timestamp}.zip"
+    output_filename = f"{short_name}-{timestamp}.zip"
     output_path = os.path.join(output_dir, output_filename)
     
     import shutil

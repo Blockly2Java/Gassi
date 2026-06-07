@@ -42,7 +42,7 @@ jobs:
           echo "=== Variables ==="
           echo "Course Prefix: '${{ inputs.course_prefix }}'"
           echo "Exercise Short Name: '${{ inputs.exercise_short_name }}'"
-          echo "Expected Path: Artemis_Export/${{ inputs.course_prefix }}-${{ inputs.exercise_short_name }}-*.zip"
+          echo "Expected Path: Artemis_Export/${{ inputs.exercise_short_name }}-*.zip
           
           echo "=== Root Directory Contents ==="
           ls -la
@@ -54,7 +54,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: artemis-export-${{ inputs.exercise_short_name }}
-          path: Artemis_Export/${{ inputs.course_prefix }}-${{ inputs.exercise_short_name }}-*.zip
+          path: Artemis_Export/${{ inputs.exercise_short_name }}-*.zip
           retention-days: 30
 
 
