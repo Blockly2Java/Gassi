@@ -29,19 +29,11 @@ jobs:
       - name: Determine branches for clone operation
         id: branches
         run: |
-          # For releases, use the tag for parent but 'main' for template/solution
-          # (template/solution repos typically don't have version-specific tags)
-          if [ -n "$RELEASE_TAG" ]; then
-            echo "parent-branch=$RELEASE_TAG" >> "$GITHUB_OUTPUT"
-            echo "template-branch=main" >> "$GITHUB_OUTPUT"
-            echo "solution-branch=main" >> "$GITHUB_OUTPUT"
-            echo "Triggered by release with tag: $RELEASE_TAG"
-          else
-            echo "parent-branch=$BRANCH" >> "$GITHUB_OUTPUT"
-            echo "template-branch=$BRANCH" >> "$GITHUB_OUTPUT"
-            echo "solution-branch=$BRANCH" >> "$GITHUB_OUTPUT"
-            echo "Triggered by push to branch: $BRANCH"
-          fi
+          # Parent repo uses the dynamic branch (tag or branch name).
+          # Template and solution repos always use main.
+          echo "parent-branch=$BRANCH" >> "$GITHUB_OUTPUT"
+          echo "template-branch=main" >> "$GITHUB_OUTPUT"
+          echo "solution-branch=main" >> "$GITHUB_OUTPUT"
 
       - name: Run local-export.sh
         run: |
