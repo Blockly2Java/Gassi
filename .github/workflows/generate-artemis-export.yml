@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - '**' # Runs on all branches. Adjust if you only want it on specific branches (e.g., - main)  workflow_dispatch:
+  workflow_dispatch:
     inputs:
       exercise_short_name:
         description: 'Repo/Exercise Short Name
