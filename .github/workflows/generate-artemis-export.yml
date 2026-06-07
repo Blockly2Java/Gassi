@@ -6,7 +6,7 @@ on:
       exercise_short_name:
         description: 'Exercise Short Name (lowercase, no spaces, e.g., gassi)'
         required: true
-        default: '${{ github.event.repository.name }}'
+        default: 'Gassi'
       branch:
         description: 'Branch to checkout for sub-repos (e.g., main, migration)'
         required: false
