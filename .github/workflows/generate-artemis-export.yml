@@ -70,10 +70,17 @@ jobs:
           path: Artemis_Export/*
           retention-days: 120
 
+      - name: Create release ZIP
+        if: github.event_name == 'release'
+        run: |
+          cd Artemis_Export
+          zip -r "../${{ env.EXERCISE_SHORT_NAME }}-${{ github.event.release.tag_name }}-export.zip" .
+          cd ..
+
       - name: Upload Release Assets
         if: github.event_name == 'release'
         uses: softprops/action-gh-release@v2
         with:
-          files: Artemis_Export/*
+          files: ${{ env.EXERCISE_SHORT_NAME }}-${{ github.event.release.tag_name }}-export.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
