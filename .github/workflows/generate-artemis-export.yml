@@ -44,8 +44,8 @@ jobs:
           rm *-exercise.zip || echo "No exercise zip files to remove"
           rm *-tests.zip || echo "No tests zip files to remove"
 
-          unzip -o ${{inputs.exercise_short_name}}-*-*.zip -d ./
-          rm ${{inputs.exercise_short_name}}-*-*.zip
+          unzip -o ${{ inputs.exercise_short_name }}-*-*.zip -d ./
+          rm ${{ inputs.exercise_short_name }}-*-*.zip
 
           ls -la
 
@@ -54,7 +54,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: artemis-export-${{ inputs.exercise_short_name }}
-          path: Artemis_Export/${{ inputs.exercise_short_name }}-*.zip
+          path: Artemis_Export/*
           retention-days: 30
 
 
