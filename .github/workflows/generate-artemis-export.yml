@@ -44,7 +44,7 @@ jobs:
       - name: Checkout template repo
         uses: actions/checkout@v4
         with:
-          repository: ${{ github.repository_owner }}/${{ inputs.exercise_short_name }}-template
+          repository: ${{ github.repository_owner }}/${{ inputs.exercise_short_name }}_template
           token: ${{ github.token }}
           path: template
           ref: ${{ inputs.branch }}
@@ -53,7 +53,7 @@ jobs:
       - name: Checkout solution repo
         uses: actions/checkout@v4
         with:
-          repository: ${{ github.repository_owner }}/${{ inputs.exercise_short_name }}-solution
+          repository: ${{ github.repository_owner }}/${{ inputs.exercise_short_name }}_solution
           token: ${{ github.token }}
           path: solution
           ref: ${{ inputs.branch }}
@@ -62,7 +62,7 @@ jobs:
       - name: Checkout tests repo
         uses: actions/checkout@v4
         with:
-          repository: ${{ github.repository_owner }}/${{ inputs.exercise_short_name }}-tests
+          repository: ${{ github.repository_owner }}/${{ inputs.exercise_short_name }}_tests
           token: ${{ github.token }}
           path: tests
           ref: ${{ inputs.branch }}

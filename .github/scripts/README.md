@@ -180,7 +180,6 @@ The `exercise-details-template.json` file contains a template with placeholder v
 - `{{COURSE_PREFIX}}` - Course prefix
 - `{{PACKAGE_NAME}}` - Java package name
 - `{{BUILD_PLAN_CONFIG}}` - Build configuration JSON
-- `{{THEIA_IMAGE}}` - Theia IDE image
 
 ## GitHub Actions Workflow
 

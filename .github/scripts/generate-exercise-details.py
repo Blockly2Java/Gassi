@@ -14,8 +14,6 @@ Template Placeholders:
     {{COURSE_PREFIX}} - Course/username prefix
     {{PACKAGE_NAME}} - Java package name
     {{BUILD_PLAN_CONFIG}} - JSON string of build configuration
-    {{THEIA_IMAGE}} - Theia IDE image name
-
 Usage:
     python3 generate-exercise-details.py \
         --title "My Exercise" \
@@ -89,7 +87,6 @@ def generate_exercise_details(
     package_name: str = "b2j.test",
     docker_image: str = "ghcr.io/valentinherrmann/artemis-maven-docker:latest",
     build_script: str = "chmod +x gradlew\n./gradlew clean test",
-    theia_image: str = "java-17-latest",
     template_file: str = None
 ) -> dict:
     """Generate the exercise details dictionary from template or defaults."""
@@ -105,8 +102,7 @@ def generate_exercise_details(
         '{{MAX_POINTS}}': max_points,
         '{{COURSE_PREFIX}}': course_prefix,
         '{{PACKAGE_NAME}}': package_name,
-        '{{BUILD_PLAN_CONFIG}}': build_plan_config,
-        '{{THEIA_IMAGE}}': theia_image,
+        '{{BUILD_PLAN_CONFIG}}': build_plan_config
     }
     
     if template_file:
@@ -185,7 +181,6 @@ def generate_exercise_details(
                 "buildPlanConfiguration": build_plan_config,
                 "checkoutSolutionRepository": False,
                 "timeoutSeconds": 0,
-                "theiaImage": theia_image,
                 "allowBranching": False,
                 "branchRegex": ".*"
             },
@@ -213,7 +208,6 @@ def main():
                        help='Docker image for building')
     parser.add_argument('--build-script', default='chmod +x gradlew\n./gradlew clean test',
                        help='Build script commands')
-    parser.add_argument('--theia-image', default='java-17-latest', help='Theia IDE image')
     parser.add_argument('--template-file', default=None, help='Path to template JSON file')
     
     args = parser.parse_args()
@@ -227,7 +221,6 @@ def main():
         package_name=args.package_name,
         docker_image=args.docker_image,
         build_script=args.build_script,
-        theia_image=args.theia_image,
         template_file=args.template_file
     )
     

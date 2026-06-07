@@ -69,7 +69,6 @@
         "buildPlanConfiguration": "{{BUILD_PLAN_CONFIG}}",
         "checkoutSolutionRepository": false,
         "timeoutSeconds": 0,
-        "theiaImage": "{{THEIA_IMAGE}}",
         "allowBranching": false,
         "branchRegex": ".*"
     },

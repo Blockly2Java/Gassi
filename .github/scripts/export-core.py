@@ -148,11 +148,23 @@ def package_export(
     output_filename = f"{course_prefix}-{short_name}-{exercise_id}-{timestamp}.zip"
     output_path = os.path.join(output_dir, output_filename)
     
-    # Create the final export ZIP
+    import shutil
+    json_name = os.path.basename(json_file)
+    md_name = os.path.basename(md_file)
+    
+    dest_json = os.path.join(output_dir, json_name)
+    dest_md = os.path.join(output_dir, md_name)
+    
+    if os.path.abspath(json_file) != os.path.abspath(dest_json):
+        shutil.copy2(json_file, dest_json)
+    if os.path.abspath(md_file) != os.path.abspath(dest_md):
+        shutil.copy2(md_file, dest_md)
+
+    # Create the final export ZIP using basenames relative to output_dir
     cmd = [
         "zip", output_path,
-        json_file,
-        md_file,
+        json_name,
+        md_name,
         f"{short_name}-exercise.zip",
         f"{short_name}-solution.zip",
         f"{short_name}-tests.zip"
