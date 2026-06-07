@@ -124,20 +124,34 @@ def main():
     
     # Ensure each test case name inside task markers is wrapped in parentheses.
     # Fixes cases where the source has "testName" but expects "testName()".
-    # Matches patterns like [task][ ](testMenschGetX,testMenschGetY)
-    # and rewrites them to [task][ ](testMenschGetX(),testMenschGetY())
+    # Handles both broken source (no parens) and correct source (already has parens).
+    # Also skips test group markers like structStructural[all] — these are left unchanged.
+    # Uses line-by-line processing with a 4-group pattern:
+    #   Group 1: "[task][ ]"  Group 2: "("  Group 3: test list  Group 4: ")"
     def fix_test_case_parens(match):
-        prefix = match.group(1)   # e.g., "[task][ ]("
-        test_list = match.group(2)  # e.g., "testMenschGetX,testMenschGetY"
-        suffix = match.group(3)   # e.g., ")" or ""
+        marker = match.group(1)   # e.g., "[task][ ]"
+        open_paren = match.group(2)  # e.g., "("
+        test_list = match.group(3)   # e.g., "testMenschGetX,testMenschGetY" or "structStructural[all]"
+        close_paren = match.group(4)  # e.g., ")"
         tests = [t.strip() for t in test_list.split(',')]
-        fixed_tests = [t if t.endswith('()') else f'{t}()' for t in tests]
-        return prefix + ','.join(fixed_tests) + suffix
+        fixed_tests = []
+        for t in tests:
+            # Skip group markers like structStructural[all], testPartial[partial] etc.
+            if '[' in t:
+                fixed_tests.append(t)
+            elif t.endswith('()'):
+                # Already has parentheses, leave as-is
+                fixed_tests.append(t)
+            else:
+                # Add parentheses to test case names that are missing them
+                fixed_tests.append(f'{t}()')
+        return marker + open_paren + ','.join(fixed_tests) + close_paren
     
     source_content = re.sub(
-        r'(\[task\]\[ \]\()([^)]+)(\)|$)',
+        r'^(\[task\]\[ \])(\()([^)]+)(\))\s*$',
         fix_test_case_parens,
-        source_content
+        source_content,
+        flags=re.MULTILINE
     )
     
     # Process the content
