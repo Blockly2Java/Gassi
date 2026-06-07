@@ -35,7 +35,7 @@ jobs:
   generate-export:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout parent repo (assignment)
+      - name: Checkout parent repo (contains scripts)
         uses: actions/checkout@v4
         with:
           path: parent
@@ -44,7 +44,7 @@ jobs:
       - name: Checkout template repo
         uses: actions/checkout@v4
         with:
-          repository: ${{ github.repository_owner }}/${{ inputs.exercise_short_name }}_template
+          repository: ${{ github.repository_owner }}/${{ inputs.exercise_short_name }}-template
           token: ${{ github.token }}
           path: template
           ref: ${{ inputs.branch }}
@@ -53,7 +53,7 @@ jobs:
       - name: Checkout solution repo
         uses: actions/checkout@v4
         with:
-          repository: ${{ github.repository_owner }}/${{ inputs.exercise_short_name }}_solution
+          repository: ${{ github.repository_owner }}/${{ inputs.exercise_short_name }}-solution
           token: ${{ github.token }}
           path: solution
           ref: ${{ inputs.branch }}
@@ -62,7 +62,7 @@ jobs:
       - name: Checkout tests repo
         uses: actions/checkout@v4
         with:
-          repository: ${{ github.repository_owner }}/${{ inputs.exercise_short_name }}
+          repository: ${{ github.repository_owner }}/${{ inputs.exercise_short_name }}-tests
           token: ${{ github.token }}
           path: tests
           ref: ${{ inputs.branch }}
@@ -83,53 +83,20 @@ jobs:
           --source template/README.md \
           --output Problem-Statement-${{ inputs.exercise_short_name }}.md
 
-      - name: Create Exercise ZIP (from template repo)
-        run: |
-          # The exercise ZIP contains the template repo contents
-          # This is the student-facing version with stub methods
-          cd template
-          zip -r "../${{ inputs.exercise_short_name }}-exercise.zip" . \
-            -x ".git/objects/*" \
-            -x ".git/refs/*" \
-            -x ".git/FETCH_HEAD" \
-            -x ".git/ORIG_HEAD" \
-            -x ".git/logs/*"
-          cd ..
+      - name: Create ZIP Packages (exercise, solution, tests)
+        run: python3 parent/.github/scripts/export-core.py create-zips \
+          --short-name "${{ inputs.exercise_short_name }}" \
+          --template-dir template \
+          --solution-dir solution \
+          --tests-dir tests \
+          --output-dir .
 
-      - name: Create Solution ZIP
-        run: |
-          cd solution
-          zip -r "../${{ inputs.exercise_short_name }}-solution.zip" . \
-            -x ".git/objects/*" \
-            -x ".git/refs/*" \
-            -x ".git/FETCH_HEAD" \
-            -x ".git/ORIG_HEAD" \
-            -x ".git/logs/*"
-          cd ..
-
-      - name: Create Tests ZIP
-        run: |
-          cd tests
-          zip -r "../${{ inputs.exercise_short_name }}-tests.zip" . \
-            -x ".git/objects/*" \
-            -x ".git/refs/*" \
-            -x ".git/FETCH_HEAD" \
-            -x ".git/ORIG_HEAD" \
-            -x ".git/logs/*"
-          cd ..
-
-      - name: Package into Artemis Export ZIP
-        run: |
-          TIMESTAMP=$(date +%Y%m%d-%H%M%S)
-          OUTPUT_FILE="${{ inputs.course_prefix }}-${{ inputs.exercise_short_name }}-${{ inputs.exercise_id }}-${TIMESTAMP}.zip"
-          
-          # Create the final ZIP with all components
-          zip "$OUTPUT_FILE" \
-            Exercise-Details-${{ inputs.exercise_short_name }}.json \
-            Problem-Statement-${{ inputs.exercise_short_name }}.md \
-            ${{ inputs.exercise_short_name }}-exercise.zip \
-            ${{ inputs.exercise_short_name }}-solution.zip \
-            ${{ inputs.exercise_short_name }}-tests.zip
+      - name: Package Final Export ZIP
+        run: python3 parent/.github/scripts/export-core.py package-export \
+          --short-name "${{ inputs.exercise_short_name }}" \
+          --id "${{ inputs.exercise_id }}" \
+          --course-prefix "${{ inputs.course_prefix }}" \
+          --output-dir .
 
       - name: Upload Artemis Export Artifact
         uses: actions/upload-artifact@v4
