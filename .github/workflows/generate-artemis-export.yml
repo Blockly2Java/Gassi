@@ -17,6 +17,7 @@ jobs:
     env:
       EXERCISE_SHORT_NAME: ${{ inputs.exercise_short_name || github.event.repository.name }}
       BRANCH: ${{ inputs.branch || github.head_ref || github.ref_name }}
+      RELEASE_TAG: ${{ github.event.release.tag_name || '' }}
       
     steps:
       - name: Checkout parent repo (contains scripts)
@@ -24,6 +25,23 @@ jobs:
         with:
           path: parent
           fetch-depth: 0
+
+      - name: Determine branches for clone operation
+        id: branches
+        run: |
+          # For releases, use the tag for parent but 'main' for template/solution
+          # (template/solution repos typically don't have version-specific tags)
+          if [ -n "$RELEASE_TAG" ]; then
+            echo "parent-branch=$RELEASE_TAG" >> "$GITHUB_OUTPUT"
+            echo "template-branch=main" >> "$GITHUB_OUTPUT"
+            echo "solution-branch=main" >> "$GITHUB_OUTPUT"
+            echo "Triggered by release with tag: $RELEASE_TAG"
+          else
+            echo "parent-branch=$BRANCH" >> "$GITHUB_OUTPUT"
+            echo "template-branch=$BRANCH" >> "$GITHUB_OUTPUT"
+            echo "solution-branch=$BRANCH" >> "$GITHUB_OUTPUT"
+            echo "Triggered by push to branch: $BRANCH"
+          fi
 
       - name: Run local-export.sh
         run: |
@@ -33,9 +51,9 @@ jobs:
           
           bash parent/.github/scripts/local-export.sh \
           --name "$EXERCISE_SHORT_NAME" \
-          --template-branch "$BRANCH" \
-          --solution-branch "$BRANCH" \
-          --parent-branch "$BRANCH"
+          --template-branch "${{ steps.branches.outputs.template-branch }}" \
+          --solution-branch "${{ steps.branches.outputs.solution-branch }}" \
+          --parent-branch "${{ steps.branches.outputs.parent-branch }}"
 
       - name: Clean up build artifacts for publishing
         run: |
