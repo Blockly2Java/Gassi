@@ -37,6 +37,19 @@ jobs:
           &&
           ls -a
 
+      - name: Debug - Show Variables and Files
+        run: |
+          echo "=== Variables ==="
+          echo "Course Prefix: '${{ inputs.course_prefix }}'"
+          echo "Exercise Short Name: '${{ inputs.exercise_short_name }}'"
+          echo "Expected Path: Artemis_Export/${{ inputs.course_prefix }}-${{ inputs.exercise_short_name }}-*.zip"
+          
+          echo "=== Root Directory Contents ==="
+          ls -la
+          
+          echo "=== Artemis_Export Directory Contents ==="
+          ls -la Artemis_Export/ || echo "Directory Artemis_Export does not exist in the current path!"
+
       - name: Upload Artemis Export Artifact
         uses: actions/upload-artifact@v4
         with:
