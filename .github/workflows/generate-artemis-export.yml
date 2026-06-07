@@ -1,16 +1,17 @@
 name: Generate Artemis Export With Local Script
 
 on:
+  push:
   workflow_dispatch:
     inputs:
       exercise_short_name:
-        description: 'Exercise Short Name (lowercase, no spaces, e.g., gassi)'
+        description: 'Repo/Exercise Short Name
         required: true
-        default: 'Gassi'
+        default: 'Empty'
       branch:
-        description: 'Branch to checkout for sub-repos (e.g., main, migration)'
+        description: 'Branch to checkout for sub-repos
         required: false
-        default: 'migration'
+        default: 'main'
 
 permissions:
   contents: write
@@ -18,6 +19,11 @@ permissions:
 jobs:
   generate-export:
     runs-on: ubuntu-latest
+    # Map inputs or fallback to GitHub contexts if triggered by a push
+    env:
+      EXERCISE_SHORT_NAME: ${{ inputs.exercise_short_name || github.event.repository.name }}
+      BRANCH: ${{ inputs.branch || github.head_ref || github.ref_name }}
+      
     steps:
       - name: Checkout parent repo (contains scripts)
         uses: actions/checkout@v4
@@ -27,12 +33,15 @@ jobs:
 
       - name: Run local-export.sh
         run: |
-          echo "${{ github.event.repository.name }}"
+          echo "Target Repository: ${{ github.event.repository.name }}"
+          echo "Using Exercise Name: $EXERCISE_SHORT_NAME"
+          echo "Using Branch: $BRANCH"
+          
           bash parent/.github/scripts/local-export.sh \
-          --name ${{ inputs.exercise_short_name }} \
-          --template-branch ${{ inputs.branch }} \
-          --solution-branch ${{ inputs.branch }} \
-          --parent-branch ${{ inputs.branch }} \
+          --name "$EXERCISE_SHORT_NAME" \
+          --template-branch "$BRANCH" \
+          --solution-branch "$BRANCH" \
+          --parent-branch "$BRANCH"
 
       - name: Clean up build artifacts for publishing
         run: |
@@ -44,17 +53,15 @@ jobs:
           rm *-exercise.zip || echo "No exercise zip files to remove"
           rm *-tests.zip || echo "No tests zip files to remove"
 
-          unzip -o ${{ inputs.exercise_short_name }}-*-*.zip -d ./
-          rm ${{ inputs.exercise_short_name }}-*-*.zip
+          unzip -o "$EXERCISE_SHORT_NAME"-*-*.zip -d ./
+          rm "$EXERCISE_SHORT_NAME"-*-*.zip
 
           ls -la
-
 
       - name: Upload Artemis Export Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: artemis-export-${{ inputs.exercise_short_name }}
+          # Use the env context to dynamically name the artifact
+          name: artemis-export-${{ env.EXERCISE_SHORT_NAME }}
           path: Artemis_Export/*
-          retention-days: 30
-
-
+          retention-days: 120
