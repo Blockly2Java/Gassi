@@ -1,48 +1,78 @@
 name: Template Tests
-
 on:
   push:
-
 permissions:
   contents: read
-
 jobs:
   test-template:
     name: Test template
     runs-on: ubuntu-latest
-
+    container:
+      image: ghcr.io/valentinherrmann/artemis-maven-docker:latest
     steps:
-      - name: Checkout repository
+      - name: Derive sub-repo names
+        id: repos
+        run: |
+          EXERCISE="${GITHUB_REPOSITORY##*/}"
+          echo "exercise=${EXERCISE}" >> $GITHUB_OUTPUT
+          echo "tests=${GITHUB_REPOSITORY_OWNER}/${EXERCISE}_tests" >> $GITHUB_OUTPUT
+          echo "template=${GITHUB_REPOSITORY_OWNER}/${EXERCISE}_template" >> $GITHUB_OUTPUT
+
+      - name: Checkout coordinator
+        uses: actions/checkout@v4
+
+      - name: Checkout tests
         uses: actions/checkout@v4
         with:
-          submodules: false
+          repository: ${{ steps.repos.outputs.tests }}
+          token: ${{ github.token }}
+          path: tests
 
-      - name: Rewrite submodule URLs to HTTPS
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          git config --global --add url."https://x-access-token:${GH_TOKEN}@github.com/".insteadOf git@github.com:
-          git config --global --add url."https://x-access-token:${GH_TOKEN}@github.com/".insteadOf ssh://git@github.com/
-
-      - name: Initialize required submodules
-        run: |
-          git submodule sync -- template tests
-          git -c protocol.version=2 submodule update --init --force --depth=1 template tests
-
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
+      - name: Checkout template
+        uses: actions/checkout@v4
         with:
-          distribution: temurin
-          java-version: '17'
-          cache: maven
+          repository: ${{ steps.repos.outputs.template }}
+          token: ${{ github.token }}
+          path: template
 
       - name: Run template tests
-        run: cd tests && mvn -B -f clean test -Ptemplate
+        run: ./gradlew clean testTemplate --no-daemon
 
-      - name: Upload Surefire reports
+      - name: Display test results
+        if: always()
+        run: |
+          set +e
+          REPORT_DIR="build/test-results/testTemplate"
+          if [ ! -d "$REPORT_DIR" ]; then
+            echo "No test results found in $REPORT_DIR"
+            exit 0
+          fi
+          
+          echo "## Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          for xml in "$REPORT_DIR"/TEST-*.xml; do
+            [ -f "$xml" ] || continue
+            basename_xml=$(basename "$xml")
+            echo "### $basename_xml" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            
+            # Use perl script to parse and display test results
+            tr '\n' ' ' < "$xml" | perl .github/workflows/display-results.pl >> $GITHUB_STEP_SUMMARY
+            
+            echo "" >> $GITHUB_STEP_SUMMARY
+          done
+          
+          # Also print to the action log
+          for xml in "$REPORT_DIR"/TEST-*.xml; do
+            [ -f "$xml" ] || continue
+            echo "=== $(basename "$xml") ==="
+            tr '\n' ' ' < "$xml" | perl .github/workflows/display-results.pl || true
+          done
+
+      - name: Upload test reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: surefire-reports-template
-          path: tests/target/surefire-reports
-          if-no-files-found: ignore
+          name: test-reports-template
+          path: build/reports/tests/testTemplate

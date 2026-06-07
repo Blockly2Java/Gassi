@@ -1,32 +1,11 @@
-name: Generate Artemis Export
+name: Generate Artemis Export With Local Script
 
 on:
-  workflow_dispatch:
-    inputs:
-      exercise_title:
-        description: 'Exercise Title (e.g., Gassi Migration)'
-        required: true
-        default: 'My Exercise'
-      exercise_short_name:
-        description: 'Exercise Short Name (lowercase, no spaces, e.g., myexercise)'
-        required: true
-        default: 'myexercise'
-      exercise_id:
-        description: 'Artemis Exercise ID'
-        required: true
-        default: '1'
-      course_prefix:
-        description: 'Course/Username prefix for artifact naming (e.g., testmtgherrmann)'
-        required: true
-        default: 'testmtgherrmann'
-      max_points:
-        description: 'Maximum points for the exercise'
-        required: false
-        default: '10.0'
-      branch:
-        description: 'Branch to checkout for sub-repos (e.g., main, migration)'
-        required: false
-        default: 'main'
+  push:
+    branches:
+      - '**' # Runs on all branches. Adjust if you only want it on specific branches (e.g., main)
+  release:
+    types: [published]
 
 permissions:
   contents: write
@@ -34,106 +13,57 @@ permissions:
 jobs:
   generate-export:
     runs-on: ubuntu-latest
+    # Map inputs or fallback to GitHub contexts if triggered by a push
+    env:
+      EXERCISE_SHORT_NAME: ${{ inputs.exercise_short_name || github.event.repository.name }}
+      BRANCH: ${{ inputs.branch || github.head_ref || github.ref_name }}
+      
     steps:
-      - name: Checkout parent repo (assignment)
+      - name: Checkout parent repo (contains scripts)
         uses: actions/checkout@v4
         with:
           path: parent
           fetch-depth: 0
 
-      - name: Checkout template repo
-        uses: actions/checkout@v4
-        with:
-          repository: ${{ github.repository_owner }}/${{ inputs.exercise_short_name }}-template
-          token: ${{ github.token }}
-          path: template
-          ref: ${{ inputs.branch }}
-          fetch-depth: 0
-
-      - name: Checkout solution repo
-        uses: actions/checkout@v4
-        with:
-          repository: ${{ github.repository_owner }}/${{ inputs.exercise_short_name }}-solution
-          token: ${{ github.token }}
-          path: solution
-          ref: ${{ inputs.branch }}
-          fetch-depth: 0
-
-      - name: Checkout tests repo
-        uses: actions/checkout@v4
-        with:
-          repository: ${{ github.repository_owner }}/${{ inputs.exercise_short_name }}-tests
-          token: ${{ github.token }}
-          path: tests
-          ref: ${{ inputs.branch }}
-          fetch-depth: 0
-
-      - name: Generate Exercise-Details JSON
-        run: python3 .github/scripts/generate-exercise-details.py \
-          --title "${{ inputs.exercise_title }}" \
-          --short-name "${{ inputs.exercise_short_name }}" \
-          --id "${{ inputs.exercise_id }}" \
-          --course-prefix "${{ inputs.course_prefix }}" \
-          --max-points "${{ inputs.max_points }}" \
-          --template-file .github/scripts/exercise-details-template.json \
-          --output Exercise-Details-${{ inputs.exercise_short_name }}.json
-
-      - name: Generate Problem Statement Markdown
-        run: python3 .github/scripts/generate-problem-statement.py \
-          --source template/README.md \
-          --output Problem-Statement-${{ inputs.exercise_short_name }}.md
-
-      - name: Create Exercise ZIP (from template repo)
+      - name: Run local-export.sh
         run: |
-          # The exercise ZIP contains the template repo contents
-          # This is the student-facing version with stub methods
-          cd template
-          zip -r "../${{ inputs.exercise_short_name }}-exercise.zip" . \
-            -x ".git/objects/*" \
-            -x ".git/refs/*" \
-            -x ".git/FETCH_HEAD" \
-            -x ".git/ORIG_HEAD" \
-            -x ".git/logs/*"
-          cd ..
-
-      - name: Create Solution ZIP
-        run: |
-          cd solution
-          zip -r "../${{ inputs.exercise_short_name }}-solution.zip" . \
-            -x ".git/objects/*" \
-            -x ".git/refs/*" \
-            -x ".git/FETCH_HEAD" \
-            -x ".git/ORIG_HEAD" \
-            -x ".git/logs/*"
-          cd ..
-
-      - name: Create Tests ZIP
-        run: |
-          cd tests
-          zip -r "../${{ inputs.exercise_short_name }}-tests.zip" . \
-            -x ".git/objects/*" \
-            -x ".git/refs/*" \
-            -x ".git/FETCH_HEAD" \
-            -x ".git/ORIG_HEAD" \
-            -x ".git/logs/*"
-          cd ..
-
-      - name: Package into Artemis Export ZIP
-        run: |
-          TIMESTAMP=$(date +%Y%m%d-%H%M%S)
-          OUTPUT_FILE="${{ inputs.course_prefix }}-${{ inputs.exercise_short_name }}-${{ inputs.exercise_id }}-${TIMESTAMP}.zip"
+          echo "Target Repository: ${{ github.event.repository.name }}"
+          echo "Using Exercise Name: $EXERCISE_SHORT_NAME"
+          echo "Using Branch: $BRANCH"
           
-          # Create the final ZIP with all components
-          zip "$OUTPUT_FILE" \
-            Exercise-Details-${{ inputs.exercise_short_name }}.json \
-            Problem-Statement-${{ inputs.exercise_short_name }}.md \
-            ${{ inputs.exercise_short_name }}-exercise.zip \
-            ${{ inputs.exercise_short_name }}-solution.zip \
-            ${{ inputs.exercise_short_name }}-tests.zip
+          bash parent/.github/scripts/local-export.sh \
+          --name "$EXERCISE_SHORT_NAME" \
+          --template-branch "$BRANCH" \
+          --solution-branch "$BRANCH" \
+          --parent-branch "$BRANCH"
+
+      - name: Clean up build artifacts for publishing
+        run: |
+          echo "=== Artemis_Export Directory Contents ==="
+          ls -la Artemis_Export/ || echo "Directory Artemis_Export does not exist in the current path!"
+
+          cd Artemis_Export/
+          rm *-solution.zip || echo "No solution zip files to remove"
+          rm *-exercise.zip || echo "No exercise zip files to remove"
+          rm *-tests.zip || echo "No tests zip files to remove"
+
+          unzip -o "$EXERCISE_SHORT_NAME"-*-*.zip -d ./
+          rm "$EXERCISE_SHORT_NAME"-*-*.zip
+
+          ls -la
 
       - name: Upload Artemis Export Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: artemis-export-${{ inputs.exercise_short_name }}
-          path: ${{ inputs.course_prefix }}-${{ inputs.exercise_short_name }}-*.zip
-          retention-days: 30
+          # Use the env context to dynamically name the artifact
+          name: artemis-export-${{ env.EXERCISE_SHORT_NAME }}
+          path: Artemis_Export/*
+          retention-days: 120
+
+      - name: Upload Release Assets
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: Artemis_Export/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
