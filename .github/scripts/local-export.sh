@@ -1,176 +1,151 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# Local test script for Artemis exercise export.
 #
-# Local export script for generating Artemis exercise packages.
-#
-# This script creates a fully isolated staging environment that mirrors
-# exactly what GitHub Actions does. It clones all repos from GitHub,
-# runs the same Python scripts, and creates the same ZIP structure.
+# This script mimics the GitHub Actions workflow by:
+# 1. Creating a temporary staging directory
+# 2. Copying the exercise repos (parent, template, solution, tests) from local
+# 3. Generating the exercise details JSON
+# 4. Generating the problem statement Markdown
+# 5. Creating the exercise, solution, and tests ZIPs
+# 6. Packaging everything into the final export ZIP
+# 7. Cleaning up the temporary directory (unless --keep-temp is passed)
 #
 # Usage:
-#   ./parent/.github/scripts/local-export.sh \
-#     --title "Gassi Migration" \
-#     --short-name "gassimigration" \
-#     --id "20534" \
-#     --course-prefix "testmtgherrmann" \
-#     --github-repo "youruser/Gassi" \
-#     --branch "main"
+#   ./local-export.sh \
+#     --title "My Exercise" \
+#     --short-name "myexercise" \
+#     --id "12345" \
+#     --course-prefix "course101" \
+#     --github-repo "myorg/myrepo"
 #
 # Options:
-#   --keep-temp          Keep the staging directory for debugging
-#   --github-token TOKEN GitHub token for private repos (uses GH_TOKEN env var if not provided)
+#   --title           Exercise title (required)
+#   --short-name      Short name for the exercise (required)
+#   --id              Exercise ID number (required)
+#   --course-prefix   Course prefix (required)
+#   --github-repo     GitHub repository in "owner/name" format (required)
+#   --keep-temp       Keep the temporary directory for debugging
+#   --help            Show this help message
 
 set -euo pipefail
 
-# -------------------------------------------------------------------
-# Parse arguments
-# -------------------------------------------------------------------
+# Default values
 TITLE=""
 SHORT_NAME=""
-EXERCISE_ID=""
+ID=""
 COURSE_PREFIX=""
 GITHUB_REPO=""
-BRANCH="main"
 KEEP_TEMP=false
-GITHUB_TOKEN="${GH_TOKEN:-}"
 
+# Parse command line arguments
 while [[ $# -gt 0 ]]; do
     case $1 in
         --title) TITLE="$2"; shift 2 ;;
         --short-name) SHORT_NAME="$2"; shift 2 ;;
-        --id) EXERCISE_ID="$2"; shift 2 ;;
+        --id) ID="$2"; shift 2 ;;
         --course-prefix) COURSE_PREFIX="$2"; shift 2 ;;
         --github-repo) GITHUB_REPO="$2"; shift 2 ;;
-        --branch) BRANCH="$2"; shift 2 ;;
         --keep-temp) KEEP_TEMP=true; shift ;;
+        --help)
+            echo "Usage: $0 --title TITLE --short-name SHORT_NAME --id ID --course-prefix PREFIX --github-repo REPO [--keep-temp] [--help]"
+            exit 0
+            ;;
         *) echo "Unknown option: $1"; exit 1 ;;
     esac
 done
 
 # Validate required arguments
-if [[ -z "$TITLE" || -z "$SHORT_NAME" || -z "$EXERCISE_ID" || -z "$COURSE_PREFIX" || -z "$GITHUB_REPO" ]]; then
-    echo "Usage: $0 --title TITLE --short-name NAME --id ID --course-prefix PREFIX --github-repo REPO [--branch BRANCH] [--keep-temp]"
+if [[ -z "$TITLE" || -z "$SHORT_NAME" || -z "$ID" || -z "$COURSE_PREFIX" || -z "$GITHUB_REPO" ]]; then
+    echo "Error: All of --title, --short-name, --id, --course-prefix, and --github-repo are required."
     exit 1
 fi
 
-# -------------------------------------------------------------------
-# Configuration
-# -------------------------------------------------------------------
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PARENT_DIR="$(dirname "$SCRIPT_DIR")"
-BASE_DIR="$(pwd)"
+# Extract owner and repo from GITHUB_REPO
+OWNER="${GITHUB_REPO%%/*}"
+REPO_NAME="${GITHUB_REPO#*/}"
 
-# -------------------------------------------------------------------
-# Create isolated staging directory
-# -------------------------------------------------------------------
-STAGING_DIR=$(mktemp -d "/tmp/artemis-export-staging-XXXXXX")
-echo "=== Creating isolated staging environment: $STAGING_DIR ==="
-
-# -------------------------------------------------------------------
-# Clone repositories (same as GitHub Actions checkout steps)
-# -------------------------------------------------------------------
-echo ""
-echo "=== Cloning repositories ==="
-
-# Clone parent repo (contains scripts)
-echo "Cloning parent repo: $GITHUB_REPO ..."
-gh repo clone "$GITHUB_REPO" "$STAGING_DIR/parent" -- --branch "$BRANCH" -- 2>/dev/null || \
-git clone --branch "$BRANCH" "https://github.com/$GITHUB_REPO.git" "$STAGING_DIR/parent"
-
-# Clone template repo
-TEMPLATE_REPO="${GITHUB_REPO%/*}/${SHORT_NAME}-template"
-if [ "$TEMPLATE_REPO" = "$GITHUB_REPO" ]; then
-    # Fallback: use same repo if template repo doesn't exist pattern
-    echo "Skipping template repo (name pattern not matched): $TEMPLATE_REPO"
-else
-    echo "Cloning template repo: $TEMPLATE_REPO ..."
-    gh repo clone "$TEMPLATE_REPO" "$STAGING_DIR/template" -- --branch "$BRANCH" -- 2>/dev/null || \
-    git clone --branch "$BRANCH" "https://github.com/$TEMPLATE_REPO.git" "$STAGING_DIR/template" 2>/dev/null || \
-    echo "WARNING: Could not clone template repo: $TEMPLATE_REPO"
+if [[ "$OWNER" == "$GITHUB_REPO" || -z "$OWNER" || -z "$REPO_NAME" ]]; then
+    echo "Error: --github-repo must be in 'owner/name' format (e.g., myorg/myrepo)."
+    exit 1
 fi
 
-# Clone solution repo
-SOLUTION_REPO="${GITHUB_REPO%/*}/${SHORT_NAME}-solution"
-echo "Cloning solution repo: $SOLUTION_REPO ..."
-gh repo clone "$SOLUTION_REPO" "$STAGING_DIR/solution" -- --branch "$BRANCH" -- 2>/dev/null || \
-git clone --branch "$BRANCH" "https://github.com/$SOLUTION_REPO.git" "$STAGING_DIR/solution" 2>/dev/null || \
-echo "WARNING: Could not clone solution repo: $SOLUTION_REPO"
+# Create a temporary staging directory
+STAGING_DIR=$(mktemp -d)
+echo "Created staging directory: $STAGING_DIR"
 
-# Clone tests repo
-TESTS_REPO="${GITHUB_REPO%/*}/${SHORT_NAME}-tests"
-echo "Cloning tests repo: $TESTS_REPO ..."
-gh repo clone "$TESTS_REPO" "$STAGING_DIR/tests" -- --branch "$BRANCH" -- 2>/dev/null || \
-git clone --branch "$BRANCH" "https://github.com/$TESTS_REPO.git" "$STAGING_DIR/tests" 2>/dev/null || \
-echo "WARNING: Could not clone tests repo: $TESTS_REPO"
+# Cleanup function
+cleanup() {
+    if [[ "$KEEP_TEMP" == "false" ]]; then
+        echo "Cleaning up temporary directory: $STAGING_DIR"
+        rm -rf "$STAGING_DIR"
+    else
+        echo "Keeping temporary directory for debugging: $STAGING_DIR"
+    fi
+}
+trap cleanup EXIT
 
-# -------------------------------------------------------------------
-# Generate Exercise-Details JSON
-# -------------------------------------------------------------------
-echo ""
-echo "=== Generating Exercise-Details JSON ==="
-cd "$STAGING_DIR"
-python3 "$SCRIPT_DIR/generate-exercise-details.py" \
+# Get the directory where this script resides
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Copy local repos to staging directory
+echo "Copying local repos to staging directory..."
+# Parent directory is one level up from SCRIPT_DIR
+cp -r "$SCRIPT_DIR/../.." "$STAGING_DIR/parent"
+# Template, solution, tests directories are in the workspace root
+WORKSPACE_DIR="$SCRIPT_DIR/../../.."
+cp -r "$WORKSPACE_DIR/template" "$STAGING_DIR/template"
+cp -r "$WORKSPACE_DIR/solution" "$STAGING_DIR/solution"
+cp -r "$WORKSPACE_DIR/tests" "$STAGING_DIR/tests"
+
+# Copy scripts and templates to staging directory
+cp "$SCRIPT_DIR/generate-exercise-details.py" "$STAGING_DIR/"
+cp "$SCRIPT_DIR/generate-problem-statement.py" "$STAGING_DIR/"
+cp "$SCRIPT_DIR/export-core.py" "$STAGING_DIR/"
+cp "$SCRIPT_DIR/exercise-details-template.json" "$STAGING_DIR/"
+
+# Run generate-exercise-details.py
+echo "Generating exercise details JSON..."
+python3 "$STAGING_DIR/generate-exercise-details.py" \
+    --template "$STAGING_DIR/exercise-details-template.json" \
     --title "$TITLE" \
     --short-name "$SHORT_NAME" \
-    --id "$EXERCISE_ID" \
+    --id "$ID" \
     --course-prefix "$COURSE_PREFIX" \
-    --template-file "$SCRIPT_DIR/exercise-details-template.json" \
-    --output "Exercise-Details-${SHORT_NAME}.json"
+    --output "$STAGING_DIR/Exercise-Details-${SHORT_NAME}.json"
 
-# -------------------------------------------------------------------
-# Generate Problem Statement Markdown
-# -------------------------------------------------------------------
-echo ""
-echo "=== Generating Problem Statement Markdown ==="
-python3 "$SCRIPT_DIR/generate-problem-statement.py" \
-    --source template/README.md \
-    --output "Problem-Statement-${SHORT_NAME}.md"
-
-# -------------------------------------------------------------------
-# Create ZIP packages using shared export-core.py
-# -------------------------------------------------------------------
-echo ""
-echo "=== Creating ZIP packages ==="
-python3 "$SCRIPT_DIR/export-core.py" create-zips \
+# Run generate-problem-statement.py
+echo "Generating problem statement Markdown..."
+python3 "$STAGING_DIR/generate-problem-statement.py" \
+    --input "$STAGING_DIR/template/README.md" \
+    --title "$TITLE" \
     --short-name "$SHORT_NAME" \
-    --template-dir template \
-    --solution-dir solution \
-    --tests-dir tests \
-    --output-dir .
-
-# -------------------------------------------------------------------
-# Package final export ZIP
-# -------------------------------------------------------------------
-echo ""
-echo "=== Packaging final export ZIP ==="
-EXPORT_ZIP=$(python3 "$SCRIPT_DIR/export-core.py" package-export \
-    --short-name "$SHORT_NAME" \
-    --id "$EXERCISE_ID" \
+    --id "$ID" \
     --course-prefix "$COURSE_PREFIX" \
-    --output-dir .)
+    --output "$STAGING_DIR/Problem-Statement-${SHORT_NAME}.md"
 
-# -------------------------------------------------------------------
-# Copy to base directory and cleanup
-# -------------------------------------------------------------------
-echo ""
-echo "=== Copying export to: $BASE_DIR ==="
-cp "$EXPORT_ZIP" "$BASE_DIR/"
+# Run export-core.py create-zips
+echo "Creating exercise, solution, and tests ZIPs..."
+python3 "$STAGING_DIR/export-core.py" create-zips \
+    --short-name "$SHORT_NAME" \
+    --parent-dir "$STAGING_DIR/parent" \
+    --template-dir "$STAGING_DIR/template" \
+    --solution-dir "$STAGING_DIR/solution" \
+    --tests-dir "$STAGING_DIR/tests" \
+    --output-dir "$STAGING_DIR"
 
-FINAL_PATH="$BASE_DIR/$(basename "$EXPORT_ZIP")"
-echo ""
-echo "========================================"
-echo "Export completed successfully!"
-echo "Location: $FINAL_PATH"
-echo "========================================"
+# Run export-core.py package-export
+echo "Packaging final export ZIP..."
+python3 "$STAGING_DIR/export-core.py" package-export \
+    --short-name "$SHORT_NAME" \
+    --id "$ID" \
+    --course-prefix "$COURSE_PREFIX" \
+    --parent-dir "$STAGING_DIR/parent" \
+    --json-file "$STAGING_DIR/Exercise-Details-${SHORT_NAME}.json" \
+    --md-file "$STAGING_DIR/Problem-Statement-${SHORT_NAME}.md" \
+    --exercise-zip "$STAGING_DIR/${SHORT_NAME}-exercise.zip" \
+    --solution-zip "$STAGING_DIR/${SHORT_NAME}-solution.zip" \
+    --tests-zip "$STAGING_DIR/${SHORT_NAME}-tests.zip" \
+    --output-dir "."
 
-# -------------------------------------------------------------------
-# Cleanup or keep staging
-# -------------------------------------------------------------------
-if [[ "$KEEP_TEMP" == "true" ]]; then
-    echo ""
-    echo "Staging directory preserved for debugging: $STAGING_DIR"
-else
-    echo ""
-    echo "Cleaning up staging directory..."
-    rm -rf "$STAGING_DIR"
-    echo "Done."
-fi
+echo "Export ZIP created in current directory."
+echo "Done!"
