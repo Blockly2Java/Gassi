@@ -6,7 +6,7 @@ on:
       exercise_short_name:
         description: 'Exercise Short Name (lowercase, no spaces, e.g., gassi)'
         required: true
-        default: 'gassi'
+        default: '${{ github.event.repository.name }}'
       branch:
         description: 'Branch to checkout for sub-repos (e.g., main, migration)'
         required: false
@@ -26,7 +26,8 @@ jobs:
           fetch-depth: 0
 
       - name: Run local-export.sh
-        run: 
+        run: |
+          echo "${{ github.event.repository.name }}"
           bash parent/.github/scripts/local-export.sh 
           --name ${{ inputs.exercise_short_name }} 
           --template-branch ${{ inputs.branch }} 
@@ -43,8 +44,8 @@ jobs:
           rm *-exercise.zip || echo "No exercise zip files to remove"
           rm *-tests.zip || echo "No tests zip files to remove"
 
-          unzip -o ${inputs.exercise_short_name}-*-*.zip -d ./
-          rm ${inputs.exercise_short_name}-*-*.zip
+          unzip -o ${{inputs.exercise_short_name}}-*-*.zip -d ./
+          rm ${{inputs.exercise_short_name}}-*-*.zip
 
           ls -la
 
