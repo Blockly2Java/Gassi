@@ -122,6 +122,24 @@ def main():
         source_content = f.read()
         source_content = source_content.replace('[//]: #[task]','[task]').replace('[task][](','[task][ ](')
     
+    # Ensure each test case name inside task markers is wrapped in parentheses.
+    # Fixes cases where the source has "testName" but expects "testName()".
+    # Matches patterns like [task][ ](testMenschGetX,testMenschGetY)
+    # and rewrites them to [task][ ](testMenschGetX(),testMenschGetY())
+    def fix_test_case_parens(match):
+        prefix = match.group(1)   # e.g., "[task][ ]("
+        test_list = match.group(2)  # e.g., "testMenschGetX,testMenschGetY"
+        suffix = match.group(3)   # e.g., ")" or ""
+        tests = [t.strip() for t in test_list.split(',')]
+        fixed_tests = [t if t.endswith('()') else f'{t}()' for t in tests]
+        return prefix + ','.join(fixed_tests) + suffix
+    
+    source_content = re.sub(
+        r'(\[task\]\[ \]\()([^)]+)(\)|$)',
+        fix_test_case_parens,
+        source_content
+    )
+    
     # Process the content
     result = process_problem_statement(source_content, args.shared_resources_url)
     
