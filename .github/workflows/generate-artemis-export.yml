@@ -17,6 +17,7 @@ jobs:
     env:
       EXERCISE_SHORT_NAME: ${{ inputs.exercise_short_name || github.event.repository.name }}
       BRANCH: ${{ inputs.branch || github.head_ref || github.ref_name }}
+      RELEASE_TAG: ${{ github.event.release.tag_name || '' }}
       
     steps:
       - name: Checkout parent repo (contains scripts)
@@ -24,6 +25,15 @@ jobs:
         with:
           path: parent
           fetch-depth: 0
+
+      - name: Determine branches for clone operation
+        id: branches
+        run: |
+          # Parent repo uses the dynamic branch (tag or branch name).
+          # Template and solution repos always use main.
+          echo "parent-branch=$BRANCH" >> "$GITHUB_OUTPUT"
+          echo "template-branch=main" >> "$GITHUB_OUTPUT"
+          echo "solution-branch=main" >> "$GITHUB_OUTPUT"
 
       - name: Run local-export.sh
         run: |
@@ -33,9 +43,9 @@ jobs:
           
           bash parent/.github/scripts/local-export.sh \
           --name "$EXERCISE_SHORT_NAME" \
-          --template-branch "$BRANCH" \
-          --solution-branch "$BRANCH" \
-          --parent-branch "$BRANCH"
+          --template-branch "${{ steps.branches.outputs.template-branch }}" \
+          --solution-branch "${{ steps.branches.outputs.solution-branch }}" \
+          --parent-branch "${{ steps.branches.outputs.parent-branch }}"
 
       - name: Clean up build artifacts for publishing
         run: |
