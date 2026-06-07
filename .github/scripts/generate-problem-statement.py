@@ -120,6 +120,7 @@ def main():
     # Read source content
     with open(source_path, 'r', encoding='utf-8') as f:
         source_content = f.read()
+        source_content = source_content.replace('[//]: #[task]','[task]').replace('[task][](','[task][ ](')
     
     # Process the content
     result = process_problem_statement(source_content, args.shared_resources_url)

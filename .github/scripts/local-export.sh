@@ -113,6 +113,20 @@ python3 "$STAGING_DIR/generate-problem-statement.py" \
     --source "$STAGING_DIR/template/README.md" \
     --output "$STAGING_DIR/Problem-Statement-${SHORT_NAME}.md"
 
+echo "Merging problem statement into exercise details JSON..."
+python3 -c "
+import json, sys
+md_path, json_path = sys.argv[1], sys.argv[2]
+with open(md_path) as f:
+    md_content = f.read()
+with open(json_path) as f:
+    json_data = json.load(f)
+json_data['problemStatement'] = md_content
+with open(json_path, 'w') as f:
+    json.dump(json_data, f, indent=4, ensure_ascii=False)
+print(f'Problem statement merged ({len(md_content)} chars) into {json_path}')
+" "$STAGING_DIR/Problem-Statement-${SHORT_NAME}.md" "$STAGING_DIR/Exercise-Details-${SHORT_NAME}.json"
+
 echo "Creating exercise, solution, and tests ZIPs..."
 python3 "$STAGING_DIR/export-core.py" create-zips \
     --short-name "$SHORT_NAME" \
