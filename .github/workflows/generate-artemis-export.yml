@@ -3,7 +3,9 @@ name: Generate Artemis Export With Local Script
 on:
   push:
     branches:
-      - '**' # Runs on all branches. Adjust if you only want it on specific branches (e.g., - main)  workflow_dispatch:
+      - '**' # Runs on all branches. Adjust if you only want it on specific branches (e.g., main)
+  release:
+    types: [published]
 
 permissions:
   contents: write
@@ -57,3 +59,11 @@ jobs:
           name: artemis-export-${{ env.EXERCISE_SHORT_NAME }}
           path: Artemis_Export/*
           retention-days: 120
+
+      - name: Upload Release Assets
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: Artemis_Export/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
