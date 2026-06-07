@@ -10,7 +10,7 @@ on:
       branch:
         description: 'Branch to checkout for sub-repos (e.g., main, migration)'
         required: false
-        default: 'main'
+        default: 'migration'
 
 permissions:
   contents: write
@@ -28,11 +28,11 @@ jobs:
       - name: Run local-export.sh
         run: |
           echo "${{ github.event.repository.name }}"
-          bash parent/.github/scripts/local-export.sh 
-          --name ${{ inputs.exercise_short_name }} 
-          --template-branch ${{ inputs.branch }} 
-          --solution-branch ${{ inputs.branch }} 
-          --parent-branch ${{ inputs.branch }}
+          bash parent/.github/scripts/local-export.sh \
+          --name ${{ inputs.exercise_short_name }} \
+          --template-branch ${{ inputs.branch }} \
+          --solution-branch ${{ inputs.branch }} \
+          --parent-branch ${{ inputs.branch }} \
 
       - name: Clean up build artifacts for publishing
         run: |
